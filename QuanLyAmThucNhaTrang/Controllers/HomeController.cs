@@ -3,28 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using QuanLyAmThucNhaTrang.BLL;
 
 namespace QuanLyAmThucNhaTrang.Controllers
 {
     public class HomeController : Controller
     {
+        private DanhMucBLL _danhMucBLL = new DanhMucBLL();
+
         public ActionResult Index()
         {
-            return View();
-        }
+            // Lấy danh sách danh mục từ BLL
+            var danhSachDM = _danhMucBLL.GetAll();
 
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            // Truyền danh sách này ra View
+            return View(danhSachDM);
         }
     }
 }
