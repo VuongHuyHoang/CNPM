@@ -72,6 +72,7 @@
     <Compile Include="DANHGIA.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DanhGiaDAL.cs" />
     <Compile Include="DANHMUC.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
@@ -79,6 +80,7 @@
     <Compile Include="DIADIEM.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DiaDiemDAL.cs" />
     <Compile Include="HINHANH.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
@@ -104,6 +106,7 @@
     <Compile Include="TAIKHOAN.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="TaiKhoanDAL.cs" />
     <Compile Include="THAMSO.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>

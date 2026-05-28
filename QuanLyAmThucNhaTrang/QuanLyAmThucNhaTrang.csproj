@@ -127,7 +127,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\DiaDiemController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -150,9 +152,16 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\StyleAdmin.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="images\uploads\banhcan_mattien.jpg" />
+    <Content Include="images\uploads\bunca_mattien.jpg" />
+    <Content Include="images\uploads\cafe_mattien.jpg" />
+    <Content Include="images\uploads\louisiane_mattien.jpg" />
+    <Content Include="images\uploads\nem_mattien.jpg" />
+    <Content Include="Scripts\Admin.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -184,6 +193,12 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\TaiKhoan\DangNhap.cshtml" />
+    <Content Include="Views\TaiKhoan\DangKy.cshtml" />
+    <Content Include="Views\DiaDiem\ChiTiet.cshtml" />
+    <Content Include="Views\DiaDiem\TimKiem.cshtml" />
+    <Content Include="Views\DiaDiem\BanDo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

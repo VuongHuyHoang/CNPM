@@ -9,15 +9,15 @@ namespace QuanLyAmThucNhaTrang.Controllers
 {
     public class HomeController : Controller
     {
-        private DanhMucBLL _danhMucBLL = new DanhMucBLL();
+        private DiaDiemBLL _diaDiemBLL = new DiaDiemBLL();
 
         public ActionResult Index()
         {
-            // Lấy danh sách danh mục từ BLL
-            var danhSachDM = _danhMucBLL.GetAll();
+            // Lấy danh sách địa điểm đang hoạt động từ BLL
+            var dsDiaDiem = _diaDiemBLL.LayDanhSachTrangChu();
 
-            // Truyền danh sách này ra View
-            return View(danhSachDM);
+            // Truyền danh sách này vào trong View
+            return View(dsDiaDiem);
         }
     }
 }
