@@ -127,8 +127,10 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\ChuCSKDController.cs" />
     <Compile Include="Controllers\DiaDiemController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\KhachHangController.cs" />
     <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -199,6 +201,16 @@
     <Content Include="Views\DiaDiem\ChiTiet.cshtml" />
     <Content Include="Views\DiaDiem\TimKiem.cshtml" />
     <Content Include="Views\DiaDiem\BanDo.cshtml" />
+    <Content Include="Views\KhachHang\YeuThich.cshtml" />
+    <Content Include="Views\KhachHang\LichSuDanhGia.cshtml" />
+    <Content Include="Views\KhachHang\TrangCaNhan.cshtml" />
+    <Content Include="Views\TaiKhoan\DangKyDoiTac.cshtml" />
+    <Content Include="Views\ChuCSKD\ThemDiaDiem.cshtml" />
+    <Content Include="Views\ChuCSKD\QuanLyGianHang.cshtml" />
+    <Content Include="Views\ChuCSKD\SuaDiaDiem.cshtml" />
+    <Content Include="Views\ChuCSKD\TrangCaNhan.cshtml" />
+    <Content Include="Views\ChuCSKD\KhuyenMai.cshtml" />
+    <Content Include="Views\ChuCSKD\PhanHoiDanhGia.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -68,5 +68,48 @@ namespace QuanLyAmThucNhaTrang.Controllers
             Session.Clear(); // Xóa sạch thông tin đăng nhập
             return RedirectToAction("Index", "Home");
         }
+
+        // 1. GIAO DIỆN TRANG ĐĂNG KÝ ĐỐI TÁC (GET)
+        public ActionResult DangKyDoiTac()
+        {
+            // Nếu người dùng đã đăng nhập rồi thì không cho vào trang đăng ký nữa
+            if (Session["MaTK"] != null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        // 2. XỬ LÝ ĐĂNG KÝ TÀI KHOẢN CHỦ CƠ SỞ (POST)
+        [HttpPost]
+        public ActionResult DangKyDoiTac(string TenDangNhap, string MatKhau, string HoTen, string Email, string SDT)
+        {
+            // Bước 1: Khởi tạo đối tượng TAIKHOAN với loại tài khoản ép cứng là ChuCSKD
+            TAIKHOAN tkDoiTac = new TAIKHOAN
+            {
+                TenDangNhap = TenDangNhap,
+                MatKhau = MatKhau, // Truyền mật khẩu gốc, hàm DangKy trong BLL sẽ tự lo việc băm SHA-256
+                HoTen = HoTen,
+                Email = Email,
+                SDT = SDT,
+                LoaiTK = "ChuCSKD" // Đây là mấu chốt của trang này!
+            };
+
+            // Bước 2: Gọi hàm DangKy có sẵn trong BLL của bạn
+            // Hàm này sẽ tự động kiểm tra trùng lặp, mã hóa mật khẩu, và set ngày tạo/trạng thái
+            string ketQua = _taiKhoanBLL.DangKy(tkDoiTac);
+
+            if (ketQua == "Success")
+            {
+                TempData["Success"] = "Đăng ký tài khoản Đối tác thành công! Hãy đăng nhập để mở gian hàng.";
+                return RedirectToAction("DangNhap");
+            }
+            else
+            {
+                // Nếu bị lỗi (như trùng Tên đăng nhập, Email...), trả câu thông báo đó về giao diện
+                ViewBag.Error = ketQua;
+                return View();
+            }
+        }
     }
 }

@@ -10,8 +10,10 @@ namespace QuanLyAmThucNhaTrang.Controllers
 {
     public class DiaDiemController : Controller
     {
+        private YeuThichBLL _yeuThichBLL = new YeuThichBLL();
         private DiaDiemBLL _diaDiemBLL = new DiaDiemBLL();
         private DanhGiaBLL _danhGiaBLL = new DanhGiaBLL();
+        private KhuyenMaiBLL _khuyenMaiBLL = new KhuyenMaiBLL();
 
         // 1. GIAO DIỆN BẢN ĐỒ (GET)
         public ActionResult BanDo()
@@ -95,12 +97,22 @@ namespace QuanLyAmThucNhaTrang.Controllers
         public ActionResult ChiTiet(int id)
         {
             var diaDiem = _diaDiemBLL.LayChiTietDiaDiem(id);
+            if (diaDiem == null) return HttpNotFound();
 
             // Nếu người dùng nhập mã bậy bạ trên URL không tồn tại
             if (diaDiem == null)
             {
                 return HttpNotFound("Không tìm thấy địa điểm ẩm thực này.");
             }
+
+            bool daLuu = false;
+            if (Session["MaTK"] != null)
+            {
+                int maTK = (int)Session["MaTK"];
+                daLuu = _yeuThichBLL.KiemTraTrangThaiLuu(maTK, id);
+            }
+            ViewBag.DaLuu = daLuu; // Gửi trạng thái sang View
+            ViewBag.KhuyenMaiList = _khuyenMaiBLL.LayKhuyenMaiHieuLuc(id);
 
             return View(diaDiem);
         }

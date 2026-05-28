@@ -1,0 +1,109 @@
+﻿@model List<QuanLyAmThucNhaTrang.DAL.DIADIEM>
+@{
+    ViewBag.Title = "Quản lý gian hàng đối tác";
+}
+
+<div class="container mt-5 mb-5" style="min-height: 60vh;">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-3 mb-4 gap-3">
+        <div>
+            <h3 class="fw-bold m-0" style="font-family: 'Playfair Display', serif;"><i class="bi bi-building-gear text-primary me-2"></i>Gian hàng của bạn</h3>
+            <p class="text-muted small m-0">Danh sách các cơ sở ẩm thực bạn đang quản lý trên hệ thống</p>
+        </div>
+        <div>
+            <a href="@Url.Action("ThemDiaDiem", "ChuCSKD")" class="btn btn-primary rounded-pill fw-bold shadow-sm px-4">
+                <i class="bi bi-plus-circle me-1"></i> Đăng ký thêm cơ sở mới
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-3 small py-2.5 shadow-sm"><i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]</div>
+    }
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="card border border-translucent shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 30%;">Tên cơ sở kinh doanh</th>
+                            <th class="py-3">Phân loại</th>
+                            <th class="py-3">Số điện thoại</th>
+                            <th class="py-3">Giờ mở cửa</th>
+                            <th class="py-3">Trạng thái duyệt</th>
+                            <th class="text-end pe-4 py-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">
+                                    @item.TenDD
+                                    <small class="text-muted d-block fw-normal style-address" style="font-size: 0.75rem;"><i class="bi bi-geo-alt me-1"></i>@item.DiaChiChiTiet</small>
+                                </td>
+                                <td><span class="badge bg-light text-secondary border px-2.5 py-1.5 rounded-3">@item.DANHMUC.TenDM</span></td>
+                                <td class="text-secondary">@(string.IsNullOrEmpty(item.SDT) ? "Chưa cập nhật" : item.SDT)</td>
+                                <td class="text-secondary">@item.GioMoCua - @item.GioDongCua</td>
+                                <td>
+                                    @if (item.TrangThai == "HoatDong")
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Đang hoạt động</span>
+                                    }
+                                    else if (item.TrangThai == "ChoDuyet")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-hourglass-split me-1"></i>Chờ xét duyệt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Bị từ chối</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2">
+                                        <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1fw-semibold" title="Chỉnh sửa thông tin">
+                                            <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
+                                        </a>
+                                        @if (item.TrangThai == "HoatDong")
+                                        {
+                                            <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold" target="_blank">
+                                                <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên web
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded-4 bg-light bg-opacity-10">
+            <i class="bi bi-shop-window text-muted display-2"></i>
+            <h5 class="text-muted mt-3 fw-bold">Bạn chưa đăng ký cơ sở ẩm thực nào</h5>
+            <p class="text-secondary small mb-4">Bắt đầu đưa thông tin nhà hàng, quán ăn của bạn tiếp cận du khách Nha Trang.</p>
+            <a href="@Url.Action("ThemDiaDiem", "ChuCSKD")" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">Đăng ký ngay cơ sở đầu tiên</a>
+        </div>
+    }
+</div>
+
+<style>
+    /* Đảm bảo đường viền bảng hiển thị mượt mà trên cả Light và Dark Mode */
+    .table > :not(caption) > * > * {
+        border-bottom-color: var(--bs-border-color) !important;
+        background-color: transparent !important;
+        color: var(--bs-body-color);
+    }
+
+    .style-address {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

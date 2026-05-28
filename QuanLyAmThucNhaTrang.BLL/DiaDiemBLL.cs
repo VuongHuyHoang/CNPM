@@ -35,5 +35,42 @@ namespace QuanLyAmThucNhaTrang.BLL
             // Nếu sau này bạn cần đếm số lượt xem (View count), có thể viết code cộng lượt xem ở đây
             return _diaDiemDAL.LayChiTietDiaDiem(maDD);
         }
+
+        // Thêm địa điểm với các giá trị mặc định ban đầu
+        public int ThemDiaDiemMoi(DIADIEM dd)
+        {
+            // Thiết lập giá trị mặc định cho quán mới đăng ký
+            dd.TrangThai = "ChoDuyet"; // Bắt buộc chờ Admin duyệt
+            dd.DiemDanhGiaTB = 0;
+            dd.SoLuotDanhGia = 0;
+
+            return _diaDiemDAL.ThemDiaDiemMoi(dd);
+        }
+
+        // Thêm hình ảnh
+        public bool ThemHinhAnh(int maDD, string duongDan, string loaiHinhAnh)
+        {
+            HINHANH ha = new HINHANH
+            {
+                MaDD = maDD,
+                DuongDan = duongDan,
+                LoaiHinhAnh = loaiHinhAnh
+            };
+            return _diaDiemDAL.ThemHinhAnh(ha);
+        }
+
+        public List<DIADIEM> LayDanhSachTheoChuQuan(int maTK)
+        {
+            return _diaDiemDAL.LayDanhSachTheoChuQuan(maTK);
+        }
+
+        public bool CapNhatGianHang(DIADIEM dd)
+        {
+            // Nghiệp vụ bảo mật: Mỗi khi sửa thông tin, hệ thống tự động ép trạng thái về "ChoDuyet"
+            // để Admin kiểm tra lại tính chính xác trước khi cho hiển thị công khai.
+            dd.TrangThai = "ChoDuyet";
+
+            return _diaDiemDAL.CapNhatDiaDiem(dd);
+        }
     }
 }

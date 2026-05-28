@@ -88,5 +88,73 @@ namespace QuanLyAmThucNhaTrang.DAL
                 return db.KHUVUC.ToList();
             }
         }
+        // 1. Thêm địa điểm mới và trả về ID vừa tạo
+        public int ThemDiaDiemMoi(DIADIEM dd)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                db.DIADIEM.Add(dd);
+                db.SaveChanges(); // EF tự động cập nhật ID vào thuộc tính MaDD
+                return dd.MaDD;
+            }
+        }
+
+        // 2. Thêm hình ảnh cho địa điểm
+        public bool ThemHinhAnh(HINHANH ha)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    db.HINHANH.Add(ha);
+                    db.SaveChanges();
+                    return true;
+                }
+                catch { return false; }
+            }
+        }
+
+        // 1. Lấy danh sách các địa điểm do một tài khoản chủ quán đăng ký
+        public List<DIADIEM> LayDanhSachTheoChuQuan(int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                return db.DIADIEM.Include("DANHMUC") // Đảm bảo dùng đúng db.DIADIEM hoặc db.DIADIEMs theo cấu hình EF của bạn
+                         .Where(d => d.MaTK == maTK)
+                         .OrderByDescending(d => d.MaDD)
+                         .ToList();
+            }
+        }
+
+        // 2. Cập nhật thông tin địa điểm (Sửa quán ăn)
+        public bool CapNhatDiaDiem(DIADIEM ddThayDoi)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dd = db.DIADIEM.FirstOrDefault(d => d.MaDD == ddThayDoi.MaDD);
+                    if (dd != null)
+                    {
+                        dd.TenDD = ddThayDoi.TenDD;
+                        dd.MaDM = ddThayDoi.MaDM;
+                        dd.MaKV = ddThayDoi.MaKV;
+                        dd.DiaChiChiTiet = ddThayDoi.DiaChiChiTiet;
+                        dd.SDT = ddThayDoi.SDT;
+                        dd.GioMoCua = ddThayDoi.GioMoCua;
+                        dd.GioDongCua = ddThayDoi.GioDongCua;
+                        dd.MoTa = ddThayDoi.MoTa;
+                        dd.ViDo = ddThayDoi.ViDo;
+                        dd.KinhDo = ddThayDoi.KinhDo;
+                        dd.TrangThai = ddThayDoi.TrangThai; // Cập nhật lại trạng thái nếu có thay đổi nghiệp vụ
+
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
     }
 }

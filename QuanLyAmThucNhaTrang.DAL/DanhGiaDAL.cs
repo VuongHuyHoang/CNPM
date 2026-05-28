@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace QuanLyAmThucNhaTrang.DAL
 {
@@ -52,6 +53,19 @@ namespace QuanLyAmThucNhaTrang.DAL
 
                     db.SaveChanges();
                 }
+            }
+        }
+
+        public List<DANHGIA> LayLichSuDanhGiaTheoUser(int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                return db.DANHGIA
+                         .Include(dg => dg.DIADIEM) // Kéo theo thông tin địa điểm được đánh giá
+                         .Include(dg => dg.DIADIEM.DANHMUC) // Kéo theo danh mục của địa điểm đó
+                         .Where(dg => dg.MaTK == maTK && dg.TrangThai == "HienThi")
+                         .OrderByDescending(dg => dg.NgayDanhGia) // Đánh giá mới nhất xếp lên đầu
+                         .ToList();
             }
         }
     }

@@ -55,17 +55,17 @@
             {
                 <li>
                     <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("TrangCaNhan", "KhachHang")">
-                        <i class="bi bi-person text-secondary"></i> Trang cá nhân
+                        <i class="bi bi-person me-2 text-primary"></i> Trang cá nhân
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("YeuThich", "KhachHang")">
-                        <i class="bi bi-heart text-danger"></i> Yêu thích
+                        <i class="bi bi-heart me-2 text-danger"></i> Yêu thích
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("LichSuDanhGia", "KhachHang")">
-                        <i class="bi bi-star text-warning"></i> Lịch sử đánh giá
+                        <i class="bi bi-star me-2 text-warning"></i> Lịch sử đánh giá
                     </a>
                 </li>
             }
@@ -74,7 +74,7 @@
             @if (userRole == "ChuCSKD")
             {
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("TrangCaNhan", "ChuQuan")">
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("TrangCaNhan", "ChuCSKD")">
                         <i class="bi bi-person text-secondary"></i> Trang cá nhân
                     </a>
                 </li>
@@ -83,22 +83,22 @@
                     <small class="text-muted text-uppercase fw-bold" style="font-size:0.72rem; letter-spacing:0.5px;">Quản lý quán</small>
                 </li>
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("DanhSachDD", "ChuQuan")">
-                        <i class="bi bi-shop text-primary"></i> Địa điểm của tôi
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("QuanLyGianHang", "ChuCSKD")">
+                        <i class="bi bi-shop text-primary"></i> Quản lý gian hàng
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("DangKyDD", "ChuQuan")">
-                        <i class="bi bi-plus-circle text-success"></i> Đăng ký địa điểm mới
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("ThemDiaDiem", "ChuCSKD")">
+                        <i class="bi bi-plus-circle text-success"></i> Đăng ký quán mới
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("ThemKM", "ChuQuan")">
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("KhuyenMai", "ChuCSKD")">
                         <i class="bi bi-gift text-warning"></i> Khuyến mãi
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("PhanHoi", "ChuQuan")">
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("PhanHoiDanhGia", "ChuCSKD")">
                         <i class="bi bi-chat-dots text-info"></i> Phản hồi đánh giá
                     </a>
                 </li>

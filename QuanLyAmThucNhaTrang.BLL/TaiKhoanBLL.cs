@@ -79,5 +79,38 @@ namespace QuanLyAmThucNhaTrang.BLL
             // Trả về null nếu sai tên đăng nhập hoặc sai mật khẩu
             return null;
         }
+
+        public TAIKHOAN LayThongTinAcount(int maTK)
+        {
+            return _taiKhoanDAL.LayTaiKhoanTheoMa(maTK);
+        }
+
+        public bool CapNhatHoSo(TAIKHOAN tk)
+        {
+            // Có thể bổ sung kiểm tra định dạng Email/SĐT ở đây nếu cần
+            return _taiKhoanDAL.CapNhatThongTin(tk);
+        }
+
+        // Nghiệp vụ đổi mật khẩu an toàn
+        public string DoiMatKhau(int maTK, string matKhauCu, string matKhauMoi)
+        {
+            var tk = _taiKhoanDAL.LayTaiKhoanTheoMa(maTK);
+            if (tk == null) return "Tài khoản không tồn tại.";
+
+            // 1. Mã hóa mật khẩu cũ người dùng nhập vào để đối chiếu với database
+            string matKhauCuMaHoa = HashPassword(matKhauCu);
+            if (tk.MatKhau != matKhauCuMaHoa)
+            {
+                return "Mật khẩu cũ không chính xác!";
+            }
+
+            // 2. Mã hóa mật khẩu mới và ra lệnh cập nhật
+            string matKhauMoiMaHoa = HashPassword(matKhauMoi);
+            if (_taiKhoanDAL.CapNhatMatKhau(maTK, matKhauMoiMaHoa))
+            {
+                return "Success";
+            }
+            return "Có lỗi hệ thống xảy ra khi đổi mật khẩu.";
+        }
     }
 }

@@ -2,7 +2,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.0.9/index.min.js"></script>
 @{
     ViewBag.Title = Model.TenDD;
-
+    var danhSachKM = ViewBag.KhuyenMaiList as List<QuanLyAmThucNhaTrang.DAL.KHUYENMAI>;
     // Xử lý ảnh mặt tiền (Cover Image)
     var anhMatTien = Model.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan;
     var urlAnhCover = string.IsNullOrEmpty(anhMatTien)
@@ -37,6 +37,43 @@
     <div class="row g-5">
 
         <div class="col-lg-8">
+
+            @if (danhSachKM != null && danhSachKM.Count > 0)
+            {
+                <div class="mb-5">
+                    <h4 class="fw-bold border-bottom pb-2 mb-4"><i class="bi bi-gift-fill text-danger me-2"></i>Ưu đãi đang diễn ra</h4>
+                    <div class="row g-3">
+                        @foreach (var km in danhSachKM)
+                        {
+                            <div class="col-12">
+                                <div class="card border-0 bg-danger bg-opacity-10 rounded-4 position-relative overflow-hidden shadow-sm"
+                                     style="border-left: 6px dashed #dc3545 !important;">
+
+                                    <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                        <div class="flex-grow-1 ps-2">
+                                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                                <h5 class="fw-bold text-danger m-0">@km.TenKM</h5>
+                                                <span class="badge bg-danger rounded-pill shadow-sm">
+                                                    <i class="bi bi-clock-history me-1"></i> HSD: @km.NgayKetThuc.ToString("dd/MM/yyyy")
+                                                </span>
+                                            </div>
+                                            <p class="small mb-0" style="line-height: 1.5; text-align: justify;">@km.NoiDungUuDai</p>
+                                        </div>
+
+                                        <div class="flex-shrink-0 text-md-end mt-2 mt-md-0">
+                                            <button class="btn btn-danger rounded-pill fw-bold px-4 py-2 w-100 shadow-sm"
+                                                    onclick="alert('Hãy đưa màn hình này cho nhân viên khi thanh toán để được áp dụng ưu đãi nhé!')">
+                                                <i class="bi bi-ticket-perforated-fill me-1"></i> Sử dụng ưu đãi
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="position-absolute top-50 start-0 translate-middle bg-white rounded-circle" style="width: 24px; height: 24px; box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
 
             <div class="mb-5">
                 <h4 class="fw-bold border-bottom pb-2 mb-4">Không gian & Thực đơn</h4>
@@ -185,8 +222,10 @@
                             </li>
                         </ul>
 
-                        <button class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2">
-                            <i class="bi bi-bookmark-heart"></i> Lưu vào Yêu thích
+                        <button id="btnYeuThich" onclick="thucHienYeuThich(@Model.MaDD)"
+                                class="btn w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2 @(ViewBag.DaLuu ? "btn-danger" : "btn-outline-danger")">
+                            <i id="iconYeuThich" class="bi @(ViewBag.DaLuu ? "bi-bookmark-heart-fill" : "bi-bookmark-heart")"></i>
+                            <span id="textYeuThich">@(ViewBag.DaLuu ? "Đã lưu vào Yêu thích" : "Lưu vào Yêu thích")</span>
                         </button>
                     </div>
                 </div>
@@ -314,3 +353,43 @@
             color: #ffc107;
         }
 </style>
+
+<script>
+    function thucHienYeuThich(maDD) {
+        // Gửi yêu cầu POST ngầm lên Controller bằng Fetch API (AJAX)
+        fetch('@Url.Action("ToggleYeuThich", "KhachHang")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'maDD=' + maDD
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var btn = document.getElementById('btnYeuThich');
+                var icon = document.getElementById('iconYeuThich');
+                var text = document.getElementById('textYeuThich');
+
+                if (data.status === "DaLuu") {
+                    // Nếu hệ thống báo đã lưu thành công -> Đổi nút sang màu đỏ đặc
+                    btn.className = "btn w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2 btn-danger";
+                    icon.className = "bi bi-bookmark-heart-fill";
+                    text.innerText = "Đã lưu vào Yêu thích";
+                } else {
+                    // Nếu hệ thống báo đã hủy lưu -> Đổi nút về viền rỗng ban đầu
+                    btn.className = "btn w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2 btn-outline-danger";
+                    icon.className = "bi bi-bookmark-heart";
+                    text.innerText = "Lưu vào Yêu thích";
+                }
+            } else {
+                // Nếu chưa đăng nhập, hiển thị Modal bắt đăng nhập lên màn hình
+                if (data.message === "Chưa đăng nhập") {
+                    var myModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                    myModal.show();
+                } else {
+                    alert(data.message);
+                }
+            }
+        })
+        .catch(error => console.error('Lỗi:', error));
+    }
+</script>

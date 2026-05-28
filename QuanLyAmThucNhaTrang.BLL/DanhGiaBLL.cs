@@ -40,5 +40,10 @@ namespace QuanLyAmThucNhaTrang.BLL
 
             return "Có lỗi xảy ra khi lưu đánh giá. Vui lòng thử lại.";
         }
+
+        public List<DANHGIA> LayLichSuDanhGiaTheoUser(int maTK)
+        {
+            return _danhGiaDAL.LayLichSuDanhGiaTheoUser(maTK);
+        }
     }
 }

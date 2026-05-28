@@ -45,8 +45,11 @@
     <Compile Include="DanhGiaBLL.cs" />
     <Compile Include="DANHMUCBLL.cs" />
     <Compile Include="DiaDiemBLL.cs" />
+    <Compile Include="KhuyenMaiBLL.cs" />
+    <Compile Include="PhanHoiBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaiKhoanBLL.cs" />
+    <Compile Include="YeuThichBLL.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuanLyAmThucNhaTrang.DAL\QuanLyAmThucNhaTrang.DAL.csproj">

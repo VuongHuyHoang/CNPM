@@ -56,5 +56,61 @@ namespace QuanLyAmThucNhaTrang.DAL
                 }
             }
         }
+
+        // ============================================================
+        // CÁC HÀM MỚI BỔ SUNG CHO CHỨC NĂNG TRANG CÁ NHÂN & ĐỔI MẬT KHẨU
+        // ============================================================
+
+        // 4. Lấy thông tin tài khoản theo Mã tài khoản (ID) để nạp vào trang hồ sơ
+        public TAIKHOAN LayTaiKhoanTheoMa(int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                return db.TAIKHOAN.FirstOrDefault(t => t.MaTK == maTK);
+            }
+        }
+
+        // 5. Cập nhật thông tin hồ sơ tổng thể (Họ tên, Email, Số điện thoại)
+        public bool CapNhatThongTin(TAIKHOAN tkCapNhat)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var tk = db.TAIKHOAN.FirstOrDefault(t => t.MaTK == tkCapNhat.MaTK);
+                    if (tk != null)
+                    {
+                        tk.HoTen = tkCapNhat.HoTen;
+                        tk.Email = tkCapNhat.Email;
+                        tk.SDT = tkCapNhat.SDT;
+
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
+        // 6. Cập nhật riêng mật khẩu mới (đã băm mã hóa SHA-256)
+        public bool CapNhatMatKhau(int maTK, string matKhauMoiMaHoa)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var tk = db.TAIKHOAN.FirstOrDefault(t => t.MaTK == maTK);
+                    if (tk != null)
+                    {
+                        tk.MatKhau = matKhauMoiMaHoa;
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
     }
 }
