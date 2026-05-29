@@ -1,10 +1,11 @@
-﻿using System;
+﻿using QuanLyAmThucNhaTrang.BLL;
+using QuanLyAmThucNhaTrang.DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using QuanLyAmThucNhaTrang.BLL;
-
+using System.Data.Entity;
 namespace QuanLyAmThucNhaTrang.Controllers
 {
     public class HomeController : Controller
@@ -13,11 +14,18 @@ namespace QuanLyAmThucNhaTrang.Controllers
 
         public ActionResult Index()
         {
-            // Lấy danh sách địa điểm đang hoạt động từ BLL
-            var dsDiaDiem = _diaDiemBLL.LayDanhSachTrangChu();
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                // Thêm .Include() để "gói" sẵn dữ liệu Danh mục và Hình ảnh đem ra View
+                var dsNoiBat = db.DIADIEM.Include(d => d.DANHMUC)
+                                         .Include(d => d.HINHANH)
+                                         .Where(d => d.TrangThai == "DangHoatDong")
+                                         .OrderByDescending(d => d.DiemDanhGiaTB)
+                                         .Take(3)
+                                         .ToList();
 
-            // Truyền danh sách này vào trong View
-            return View(dsDiaDiem);
+                return View(dsNoiBat);
+            }
         }
     }
 }

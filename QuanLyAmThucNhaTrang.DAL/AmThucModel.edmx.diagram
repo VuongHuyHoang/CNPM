@@ -14,7 +14,6 @@
         <EntityTypeShape EntityType="QuanLyAmThucNhaTrangModel.PHANHOI" Width="1.5" PointX="5.25" PointY="1.25" IsExpanded="true" />
         <EntityTypeShape EntityType="QuanLyAmThucNhaTrangModel.sysdiagrams" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="QuanLyAmThucNhaTrangModel.TAIKHOAN" Width="1.5" PointX="0.75" PointY="5.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="QuanLyAmThucNhaTrangModel.THAMSO" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="QuanLyAmThucNhaTrangModel.YEUTHICH" Width="1.5" PointX="11.25" PointY="6.375" IsExpanded="true" />
         <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_DanhGia_DiaDiem" ManuallyRouted="false" />
         <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_DanhGia_TaiKhoan" ManuallyRouted="false" />

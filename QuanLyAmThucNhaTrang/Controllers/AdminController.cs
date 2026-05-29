@@ -157,26 +157,6 @@ namespace QuanLyAmThucNhaTrang.Controllers
             return RedirectToAction("QuanLyDanhMuc");
         }
 
-        // ==========================================
-        // 4. THIẾT LẬP THAM SỐ HỆ THỐNG
-        // ==========================================
-        public ActionResult QuanLyThamSo()
-        {
-            if (!IsAdmin()) return RedirectToAction("DangNhap", "TaiKhoan");
-            return View(_adminBLL.LayDanhSachThamSo());
-        }
-
-        [HttpPost]
-        public ActionResult CapNhatThamSo(int MaThamSo, string GiaTri)
-        {
-            if (!IsAdmin()) return RedirectToAction("DangNhap", "TaiKhoan");
-            if (_adminBLL.CapNhatThamSo(MaThamSo, GiaTri))
-                TempData["Success"] = "Đã cập nhật tham số hệ thống thành công!";
-            else
-                TempData["Error"] = "Có lỗi xảy ra khi cập nhật tham số.";
-
-            return RedirectToAction("QuanLyThamSo");
-        }
 
         // 5. KẾT XUẤT BÁO CÁO
         // ==========================================

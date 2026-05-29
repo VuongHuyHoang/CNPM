@@ -10,7 +10,7 @@
                 <div class="bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 70px; height: 70px;">
                     <i class="bi bi-shield-lock text-primary fs-1"></i>
                 </div>
-                <h2 class="fw-bold">Chào mừng trở lại</h2>
+                <h2 class="fw-bold text-dark">Chào mừng trở lại</h2>
                 <p class="text-muted small">Vui lòng đăng nhập để khám phá ẩm thực Nha Trang</p>
             </div>
 
@@ -21,21 +21,21 @@
 
             <form action="@Url.Action("DangNhap", "TaiKhoan")" method="POST">
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Tên đăng nhập</label>
+                    <label class="form-label text-dark small fw-bold">Tên đăng nhập</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-0"><i class="bi bi-person text-secondary"></i></span>
-                        <input type="text" name="TenDangNhap" class="form-control bg-light border-0 py-2" placeholder="Nhập tên đăng nhập..." required />
+                        <span class="input-group-text border-0"><i class="bi bi-person text-secondary"></i></span>
+                        <input type="text" name="TenDangNhap" class="form-control border-0 py-2" placeholder="Nhập tên đăng nhập..." required />
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between">
-                        <label class="form-label small fw-bold">Mật khẩu</label>
+                        <label class="form-label text-dark small fw-bold">Mật khẩu</label>
                         <a href="#" class="text-decoration-none small">Quên mật khẩu?</a>
                     </div>
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-0"><i class="bi bi-key text-secondary"></i></span>
-                        <input type="password" name="MatKhau" class="form-control bg-light border-0 py-2" placeholder="********" required />
+                        <span class="input-group-text border-0"><i class="bi bi-key text-secondary"></i></span>
+                        <input type="password" name="MatKhau" class="form-control border-0 py-2" placeholder="********" required />
                     </div>
                 </div>
 

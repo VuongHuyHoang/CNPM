@@ -71,6 +71,10 @@ namespace QuanLyAmThucNhaTrang.BLL
             };
             return _diaDiemDAL.ThemHinhAnh(ha);
         }
+        public bool XoaHinhAnh(int maHA)
+        {
+            return _diaDiemDAL.XoaHinhAnh(maHA);
+        }
 
         public List<DIADIEM> LayDanhSachTheoChuQuan(int maTK)
         {
@@ -81,9 +85,17 @@ namespace QuanLyAmThucNhaTrang.BLL
         {
             // Nghiệp vụ bảo mật: Mỗi khi sửa thông tin, hệ thống tự động ép trạng thái về "ChoDuyet"
             // để Admin kiểm tra lại tính chính xác trước khi cho hiển thị công khai.
-            dd.TrangThai = "ChoDuyet";
+            dd.TrangThai = "ChoDuyetSua";
 
             return _diaDiemDAL.CapNhatDiaDiem(dd);
+        }
+        public bool HuyYeuCauCapNhat(int maDD, int maTK)
+        {
+            return _diaDiemDAL.HuyYeuCauCapNhat(maDD, maTK);
+        }
+        public bool CapNhatTrangThaiNhanh(int maDD, string trangThaiMoi)
+        {
+            return _diaDiemDAL.CapNhatTrangThaiNhanh(maDD, trangThaiMoi);
         }
     }
 }

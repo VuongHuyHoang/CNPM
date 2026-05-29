@@ -109,15 +109,6 @@
     <Property Name="NgayTao" Type="date" Nullable="false" />
     <Property Name="TrangThai" Type="varchar" MaxLength="20" Nullable="false" />
   </EntityType>
-  <EntityType Name="THAMSO">
-    <Key>
-      <PropertyRef Name="MaThamSo" />
-    </Key>
-    <Property Name="MaThamSo" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="TenThamSo" Type="varchar" MaxLength="100" Nullable="false" />
-    <Property Name="GiaTri" Type="varchar" MaxLength="100" Nullable="false" />
-    <Property Name="MoTa" Type="nvarchar" MaxLength="300" />
-  </EntityType>
   <EntityType Name="YEUTHICH">
     <Key>
       <PropertyRef Name="MaYT" />
@@ -300,7 +291,6 @@
     <EntitySet Name="PHANHOI" EntityType="Self.PHANHOI" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TAIKHOAN" EntityType="Self.TAIKHOAN" Schema="dbo" store:Type="Tables" />
-    <EntitySet Name="THAMSO" EntityType="Self.THAMSO" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="YEUTHICH" EntityType="Self.YEUTHICH" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK_DanhGia_DiaDiem" Association="Self.FK_DanhGia_DiaDiem">
       <End Role="DIADIEM" EntitySet="DIADIEM" />

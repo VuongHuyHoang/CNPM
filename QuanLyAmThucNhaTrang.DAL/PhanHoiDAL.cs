@@ -18,7 +18,7 @@ namespace QuanLyAmThucNhaTrang.DAL
                 return db.DANHGIA // (Sửa thành db.DANHGIAs nếu EF của bạn là số nhiều)
                          .Include(dg => dg.DIADIEM)
                          .Include(dg => dg.TAIKHOAN)
-                         .Include("PHANHOIs") // Kéo theo phản hồi (nếu có)
+                         .Include("PHANHOI") // Kéo theo phản hồi (nếu có)
                          .Where(dg => dg.DIADIEM.MaTK == maTKChuQuan)
                          .OrderByDescending(dg => dg.NgayDanhGia)
                          .ToList();

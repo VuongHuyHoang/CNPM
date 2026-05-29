@@ -87,10 +87,7 @@ namespace QuanLyAmThucNhaTrang.BLL
 
         public bool XoaDanhMuc(int maDM) => _adminDAL.XoaDanhMuc(maDM);
 
-        // --- NGHIỆP VỤ THAM SỐ ---
-        public List<THAMSO> LayDanhSachThamSo() => _adminDAL.LayDanhSachThamSo();
-
-        public bool CapNhatThamSo(int maThamSo, string giaTri) => _adminDAL.CapNhatThamSo(maThamSo, giaTri);
+        
 
 
     }

@@ -36,7 +36,6 @@ namespace QuanLyAmThucNhaTrang.DAL
         public virtual DbSet<PHANHOI> PHANHOI { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<TAIKHOAN> TAIKHOAN { get; set; }
-        public virtual DbSet<THAMSO> THAMSO { get; set; }
         public virtual DbSet<YEUTHICH> YEUTHICH { get; set; }
     
         public virtual int sp_alterdiagram(string diagramname, Nullable<int> owner_id, Nullable<int> version, byte[] definition)

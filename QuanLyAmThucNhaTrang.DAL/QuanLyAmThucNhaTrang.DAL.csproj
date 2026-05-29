@@ -113,9 +113,6 @@
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>
     <Compile Include="TaiKhoanDAL.cs" />
-    <Compile Include="THAMSO.cs">
-      <DependentUpon>AmThucModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="YEUTHICH.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>
     </Compile>

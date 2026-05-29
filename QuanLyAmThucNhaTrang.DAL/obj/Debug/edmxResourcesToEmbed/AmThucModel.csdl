@@ -129,15 +129,6 @@
     <NavigationProperty Name="PHANHOI" Relationship="Self.FK_PhanHoi_TaiKhoan" FromRole="TAIKHOAN" ToRole="PHANHOI" />
     <NavigationProperty Name="YEUTHICH" Relationship="Self.FK_YeuThich_TaiKhoan" FromRole="TAIKHOAN" ToRole="YEUTHICH" />
   </EntityType>
-  <EntityType Name="THAMSO">
-    <Key>
-      <PropertyRef Name="MaThamSo" />
-    </Key>
-    <Property Name="MaThamSo" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="TenThamSo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
-    <Property Name="GiaTri" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
-    <Property Name="MoTa" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
-  </EntityType>
   <EntityType Name="YEUTHICH">
     <Key>
       <PropertyRef Name="MaYT" />
@@ -291,7 +282,6 @@
     <EntitySet Name="PHANHOI" EntityType="Self.PHANHOI" />
     <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
     <EntitySet Name="TAIKHOAN" EntityType="Self.TAIKHOAN" />
-    <EntitySet Name="THAMSO" EntityType="Self.THAMSO" />
     <EntitySet Name="YEUTHICH" EntityType="Self.YEUTHICH" />
     <AssociationSet Name="FK_DanhGia_DiaDiem" Association="Self.FK_DanhGia_DiaDiem">
       <End Role="DIADIEM" EntitySet="DIADIEM" />

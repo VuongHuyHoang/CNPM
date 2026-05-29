@@ -35,52 +35,66 @@ namespace QuanLyAmThucNhaTrang.Controllers
         // 2. XỬ LÝ LƯU DỮ LIỆU VÀ FILE ẢNH (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ThemDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> hinhAnhs)
+        // Đã cập nhật tham số để hứng thêm anhKhongGian và anhThucDon từ form
+        public ActionResult ThemDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> hinhAnhs, IEnumerable<HttpPostedFileBase> anhKhongGian, IEnumerable<HttpPostedFileBase> anhThucDon)
         {
             if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
 
             int maTK = Convert.ToInt32(Session["MaTK"]);
             dd.MaTK = maTK;
 
-            // Lọc bỏ các file rỗng nếu có
-            var danhSachFile = hinhAnhs != null
+            // 1. Kiểm tra Ràng buộc Ảnh Mặt Tiền (Bắt buộc >= 2)
+            var danhSachMatTien = hinhAnhs != null
                 ? hinhAnhs.Where(f => f != null && f.ContentLength > 0).ToList()
                 : new List<HttpPostedFileBase>();
 
-            // Ràng buộc kiểm tra tối thiểu 2 ảnh
-            if (danhSachFile.Count < 2)
+            if (danhSachMatTien.Count < 2)
             {
                 ViewBag.Error = "Biểu mẫu bắt buộc phải tải lên ít nhất 2 hình ảnh mặt tiền quán để xác minh!";
-                ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM");
-                ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV");
+                ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM", dd.MaDM);
+                ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV", dd.MaKV);
                 return View(dd);
             }
 
             if (ModelState.IsValid)
             {
-                // 1. Lưu thông tin cơ bản của Địa điểm trước để sinh ra MaDD tự tăng
+                // 2. Lưu thông tin cơ bản để sinh ra MaDD
                 int maDDMoi = _diaDiemBLL.ThemDiaDiemMoi(dd);
 
                 if (maDDMoi > 0)
                 {
-                    // 2. Vòng lặp duyệt qua từng file ảnh để lưu vào thư mục và Database
-                    foreach (var file in danhSachFile)
+                    string duongDanThuMuc = Server.MapPath("~/images/uploads/");
+                    if (!Directory.Exists(duongDanThuMuc))
+                        Directory.CreateDirectory(duongDanThuMuc);
+
+                    // 3.1 Lưu tập Ảnh Mặt Tiền
+                    foreach (var file in danhSachMatTien)
                     {
-                        // Tạo tên file duy nhất bằng GUID tránh trùng lặp tệp tin
-                        string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
-                        string duongDanThuMuc = Server.MapPath("~/images/uploads/");
+                        string tenFile = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        file.SaveAs(Path.Combine(duongDanThuMuc, tenFile));
+                        _diaDiemBLL.ThemHinhAnh(maDDMoi, "/images/uploads/" + tenFile, "MatTien");
+                    }
 
-                        if (!System.IO.Directory.Exists(duongDanThuMuc))
-                            System.IO.Directory.CreateDirectory(duongDanThuMuc);
+                    // 3.2 Lưu tập Ảnh Không Gian (Nếu có tải lên)
+                    if (anhKhongGian != null)
+                    {
+                        foreach (var file in anhKhongGian.Where(f => f != null && f.ContentLength > 0))
+                        {
+                            string tenFile = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                            file.SaveAs(Path.Combine(duongDanThuMuc, tenFile));
+                            _diaDiemBLL.ThemHinhAnh(maDDMoi, "/images/uploads/" + tenFile, "KhongGian");
+                        }
+                    }
 
-                        string duongDanVatLy = System.IO.Path.Combine(duongDanThuMuc, tenFile);
-                        file.SaveAs(duongDanVatLy); // Lưu file vào thư mục vật lý của Server
-
-                        // Đường dẫn tương đối dùng để hiển thị lên giao diện web
-                        string duongDanDb = "/images/uploads/" + tenFile;
-
-                        // Gọi tầng nghiệp vụ lưu đường dẫn này vào bảng HINHANH với loại 'MatTien'
-                        _diaDiemBLL.ThemHinhAnh(maDDMoi, duongDanDb, "MatTien");
+                    // 3.3 Lưu tập Ảnh Thực Đơn (Nếu có tải lên)
+                    if (anhThucDon != null)
+                    {
+                        foreach (var file in anhThucDon.Where(f => f != null && f.ContentLength > 0))
+                        {
+                            string tenFile = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                            file.SaveAs(Path.Combine(duongDanThuMuc, tenFile));
+                            _diaDiemBLL.ThemHinhAnh(maDDMoi, "/images/uploads/" + tenFile, "ThucDon");
+                        }
                     }
 
                     TempData["Success"] = "Gửi yêu cầu đăng ký địa điểm thành công! Vui lòng chờ kiểm duyệt.";
@@ -88,8 +102,8 @@ namespace QuanLyAmThucNhaTrang.Controllers
                 }
             }
 
-            ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM");
-            ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV");
+            ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM", dd.MaDM);
+            ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV", dd.MaKV);
             return View(dd);
         }
 
@@ -128,9 +142,20 @@ namespace QuanLyAmThucNhaTrang.Controllers
         // 5. XỬ LÝ LƯU THÔNG TIN SỬA ĐỔI (POST)
         [HttpPost]
         [ValidateInput(false)]
-        public ActionResult SuaDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> anhKhongGian, IEnumerable<HttpPostedFileBase> anhThucDon)
+        [ValidateAntiForgeryToken]
+        public ActionResult SuaDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> anhKhongGian, IEnumerable<HttpPostedFileBase> anhThucDon, List<int> anhCanXoa)
         {
             if (Session["LoaiTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD") return RedirectToAction("DangNhap", "TaiKhoan");
+
+            // 1. XỬ LÝ XÓA ẢNH CŨ (Nếu người dùng có tick chọn)
+            if (anhCanXoa != null && anhCanXoa.Any())
+            {
+                foreach (int maHA in anhCanXoa)
+                {
+                    // Tùy chọn nâng cao: Bạn có thể viết thêm code xóa file vật lý trong ổ cứng tại đây để dọn rác server
+                    _diaDiemBLL.XoaHinhAnh(maHA);
+                }
+            }
 
             if (_diaDiemBLL.CapNhatGianHang(dd))
             {
@@ -262,6 +287,42 @@ namespace QuanLyAmThucNhaTrang.Controllers
             }
 
             return RedirectToAction("PhanHoiDanhGia");
+        }
+
+        [HttpPost]
+        public JsonResult ToggleHoatDong(int maDD)
+        {
+            if (Session["MaTK"] == null) return Json(new { success = false, message = "Chưa đăng nhập" });
+            int maTK = Convert.ToInt32(Session["MaTK"]);
+
+            var dd = _diaDiemBLL.LayChiTietDiaDiem(maDD);
+
+            if (dd != null && dd.MaTK == maTK && (dd.TrangThai.Trim() == "DangHoatDong" || dd.TrangThai.Trim() == "TamNgung"))
+            {
+                string trangThaiMoi = (dd.TrangThai.Trim() == "DangHoatDong") ? "TamNgung" : "DangHoatDong";
+
+                // THAY ĐỔI TẠI ĐÂY: Gọi hàm cập nhật trạng thái nhanh, bypass qua bộ lọc kiểm duyệt
+                bool ketQua = _diaDiemBLL.CapNhatTrangThaiNhanh(maDD, trangThaiMoi);
+
+                return Json(new { success = ketQua, trangThaiMoi = trangThaiMoi });
+            }
+            return Json(new { success = false, message = "Không hợp lệ hoặc quán đang chờ duyệt." });
+        }
+        [HttpPost]
+        public ActionResult HuyCapNhat(int id)
+        {
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
+            int maTK = Convert.ToInt32(Session["MaTK"]);
+
+            if (_diaDiemBLL.HuyYeuCauCapNhat(id, maTK))
+            {
+                TempData["Success"] = "Đã hủy yêu cầu sửa đổi! Quán của bạn đã trở lại hoạt động bình thường.";
+            }
+            else
+            {
+                TempData["Error"] = "Không thể thực hiện yêu cầu này.";
+            }
+            return RedirectToAction("QuanLyGianHang", "ChuCSKD");
         }
     }
 }

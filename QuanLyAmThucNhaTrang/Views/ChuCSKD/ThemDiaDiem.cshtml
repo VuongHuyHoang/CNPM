@@ -90,7 +90,6 @@
                     <div class="form-text small">Hỗ trợ định dạng .jpg, .png (Tối đa 5MB). <strong>Bạn có thể quét chuột hoặc giữ phím Ctrl để chọn nhiều ảnh.</strong></div>
                 </div>
             </div>
-
             <div class="col-lg-6">
                 <h6 class="fw-bold text-secondary mb-3">3. Tọa độ bản đồ <span class="text-danger">*</span></h6>
                 <p class="small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Di chuyển hoặc click lên bản đồ để ghim chính xác vị trí quán ăn của bạn.</p>
@@ -106,6 +105,19 @@
                     </div>
                 </div>
             </div>
+            <h6 class="fw-bold text-secondary mb-3 mt-4">3. Hình ảnh chi tiết (Không bắt buộc)</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">Ảnh Không gian quán</label>
+                    <input class="form-control" type="file" name="anhKhongGian" accept="image/*" multiple>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">Ảnh Thực đơn / Món ăn</label>
+                    <input class="form-control" type="file" name="anhThucDon" accept="image/*" multiple>
+                </div>
+            </div>
+
+
         </div>
 
         <hr class="my-4">
@@ -166,20 +178,14 @@
         var formDangKy = document.querySelector("form");
 
         formDangKy.addEventListener("submit", function (event) {
-            // Tìm ô input chọn ảnh mặt tiền
             var inputHinhAnh = document.querySelector("input[name='hinhAnhs']");
 
-            // Nếu có chọn file nhưng số lượng file bé hơn 2
-            if (inputHinhAnh.files.length > 0 && inputHinhAnh.files.length < 2) {
-                // Chặn không cho form gửi đi
+            // Chỉ cần kiểm tra < 2 là bao trọn cả trường hợp 0 file và 1 file
+            if (inputHinhAnh.files.length < 2) {
                 event.preventDefault();
-
-                // Hiển thị thông báo (Bạn có thể dùng thư viện SweetAlert2 cho đẹp thay vì alert thường)
-                alert("Yêu cầu bắt buộc: Vui lòng quét chọn ÍT NHẤT 2 hình ảnh mặt tiền để Ban quản trị có cơ sở xác minh quán ăn của bạn!");
-
-                // Focus lại vào ô nhập ảnh
+                alert("Yêu cầu bắt buộc: Vui lòng tải lên ÍT NHẤT 2 hình ảnh mặt tiền (Bao gồm bảng hiệu và không gian phía trước) để Ban quản trị xác minh!");
                 inputHinhAnh.focus();
-                inputHinhAnh.classList.add("is-invalid"); // Bật viền đỏ của Bootstrap
+                inputHinhAnh.classList.add("is-invalid");
             }
         });
     });

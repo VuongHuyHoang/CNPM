@@ -18,7 +18,7 @@ namespace QuanLyAmThucNhaTrang.DAL
                 return db.DIADIEM.Include(d => d.TAIKHOAN)
                                  .Include(d => d.DANHMUC)
                                  .Include(d => d.HINHANH)
-                                 .Where(d => d.TrangThai == "ChoDuyet")
+                                 .Where(d => d.TrangThai == "ChoDuyet" || d.TrangThai == "ChoDuyetSua")
                                  .OrderBy(d => d.NgayDangKy) // Ưu tiên người đăng ký trước
                                  .ToList();
             }
@@ -35,6 +35,7 @@ namespace QuanLyAmThucNhaTrang.DAL
                     if (dd != null)
                     {
                         dd.TrangThai = trangThaiMoi;
+                        dd.LyDoTuChoi = null; // Xóa sạch án tích cũ nếu có
                         db.SaveChanges();
                         return true;
                     }
@@ -53,8 +54,17 @@ namespace QuanLyAmThucNhaTrang.DAL
                     var dd = db.DIADIEM.Find(maDD);
                     if (dd != null)
                     {
-                        dd.TrangThai = "TuChoi";
-                        dd.LyDoTuChoi = lyDo; // Lưu lý do vào CSDL
+                        // BỘ NÃO PHÂN TÍCH NẰM Ở ĐÂY:
+                        if (dd.TrangThai.Trim() == "ChoDuyet")
+                        {
+                            dd.TrangThai = "TuChoi"; // Đơn mới -> Từ chối hẳn
+                        }
+                        else if (dd.TrangThai.Trim() == "ChoDuyetSua")
+                        {
+                            dd.TrangThai = "TuChoiSua"; // Đơn cũ xin sửa -> Trả về để sửa lại, vẫn cho bán
+                        }
+
+                        dd.LyDoTuChoi = lyDo; // Gắn lý do "Ảnh quá mờ" vào
                         db.SaveChanges();
                         return true;
                     }
@@ -268,30 +278,6 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
-        // ========================================================
-        // 4. QUẢN LÝ THAM SỐ HỆ THỐNG
-        // ========================================================
-        public List<THAMSO> LayDanhSachThamSo()
-        {
-            using (var db = new QuanLyAmThucNhaTrangEntities())
-            {
-                return db.THAMSO.ToList();
-            }
-        }
-
-        public bool CapNhatThamSo(int maThamSo, string giaTriMoi)
-        {
-            using (var db = new QuanLyAmThucNhaTrangEntities())
-            {
-                try
-                {
-                    var ts = db.THAMSO.Find(maThamSo);
-                    if (ts != null) { ts.GiaTri = giaTriMoi; db.SaveChanges(); return true; }
-                    return false;
-                }
-                catch { return false; }
-            }
-        }
 
         public List<BaoCaoDiaDiemVM> ThongKeDiaDiem(System.DateTime tuNgay, System.DateTime denNgay)
         {

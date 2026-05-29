@@ -18,10 +18,10 @@
         <h3 class="fw-bold m-0" style="font-family: 'Playfair Display', serif;">Địa điểm nổi bật nhất</h3>
         <p class="text-muted small m-0">Những tọa độ ẩm thực không thể bỏ qua khi tới Nha Trang</p>
     </div>
-    <a href="#" class="text-decoration-none fw-bold small">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+    <a href="@Url.Action("TimKiem", "DiaDiem")" class="text-decoration-none fw-bold small">Xem tất cả <i class="bi bi-arrow-right"></i></a>
 </div>
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mx-0">
     @if (Model != null && Model.Count > 0)
     {
         foreach (var item in Model)
@@ -31,8 +31,16 @@
                              ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600";
 
             <div class="col" data-aos="fade-up">
-                <div class="card h-100 border-0 shadow-sm overflow-hidden border border-translucent" style="border-radius: 20px; transition: all 0.3s ease;">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden border border-translucent @(item.TrangThai == "TamNgung" ? "card-tamngung" : "")" style="border-radius: 20px; transition: all 0.3s ease;">
                     <div class="position-relative overflow-hidden" style="height: 200px;">
+
+                        @if (item.TrangThai == "TamNgung")
+                        {
+                            <div class="ribbon-tamngung border border-warning text-nowrap shadow-lg">
+                                <i class="bi bi-lock-fill me-2 text-warning"></i>TẠM NGHỈ BÁN
+                            </div>
+                        }
+
                         <img src="@Url.Content("~" + anhMatTien)" class="w-100 h-100 object-fit-cover" alt="@item.TenDD" style="transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                         <span class="position-absolute top-0 start-0 m-3 badge bg-white text-dark fw-bold border shadow-sm px-2.5 py-1.5" style="border-radius: 8px; font-size: 0.8rem;">
                             <i class="bi bi-tag-fill text-primary me-1"></i> @item.DANHMUC.TenDM
@@ -74,3 +82,28 @@
         </div>
     }
 </div>
+
+<style>
+    /* Class làm mờ và mất màu */
+    .card-tamngung {
+        opacity: 0.65;
+        filter: grayscale(80%);
+        pointer-events: none; /* Tùy chọn: Chặn click nếu không muốn khách vào xem chi tiết */
+        transition: all 0.3s ease;
+    }
+
+    /* Nhãn đè lên ảnh */
+    .ribbon-tamngung {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        z-index: 10;
+        letter-spacing: 1px;
+    }
+</style>

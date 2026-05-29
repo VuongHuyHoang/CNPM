@@ -40,56 +40,114 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="ps-4 fw-bold">
+                                <td class="ps-4 fw-bold align-middle">
                                     @item.TenDD
-                                    <small class="text-muted d-block fw-normal style-address" style="font-size: 0.75rem;"><i class="bi bi-geo-alt me-1"></i>@item.DiaChiChiTiet</small>
+                                    <small class="text-muted d-block fw-normal style-address mt-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-geo-alt me-1"></i>@item.DiaChiChiTiet
+                                    </small>
                                 </td>
-                                <td><span class="badge bg-light text-secondary border px-2.5 py-1.5 rounded-3">@item.DANHMUC.TenDM</span></td>
-                                <td class="text-secondary">@(string.IsNullOrEmpty(item.SDT) ? "Chưa cập nhật" : item.SDT)</td>
-                                <td class="text-secondary">@item.GioMoCua - @item.GioDongCua</td>
-                                <td>
-                                    @if (item.TrangThai == "DangHoatDong")
+                                <td class="align-middle">
+                                    <span class="badge bg-light text-secondary border px-2.5 py-1.5 rounded-3">@item.DANHMUC.TenDM</span>
+                                </td>
+                                <td class="text-secondary align-middle">
+                                    @(string.IsNullOrEmpty(item.SDT) ? "Chưa cập nhật" : item.SDT)
+                                </td>
+                                <td class="text-secondary align-middle">
+                                    @item.GioMoCua - @item.GioDongCua
+                                </td>
+
+                                <td class="align-middle">
+                                    @if (item.TrangThai.Trim() == "DangHoatDong" || item.TrangThai.Trim() == "TamNgung")
                                     {
-                                        <span class="badge bg-success">Đang hoạt động</span>
+                                        <div class="form-check form-switch d-flex align-items-center gap-2 m-0">
+                                            <input class="form-check-input fs-5 m-0" type="checkbox" role="switch"
+                                                   id="switch_@item.MaDD"
+                                                   onchange="doiTrangThaiHoatDong(@item.MaDD, this)"
+                                                   @(item.TrangThai.Trim() == "DangHoatDong" ? "checked" : "")>
+                                            <label class="form-check-label small fw-bold @(item.TrangThai.Trim() == "DangHoatDong" ? "text-success" : "text-muted")" id="label_@item.MaDD">
+                                                @(item.TrangThai.Trim() == "DangHoatDong" ? "Đang mở cửa" : "Đang tạm nghỉ")
+                                            </label>
+                                        </div>
                                     }
-                                    else if (item.TrangThai == "ChoDuyet")
+                                    else if (item.TrangThai.Trim() == "ChoDuyet")
                                     {
-                                        <span class="badge bg-warning text-dark">Đang chờ duyệt</span>
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">
+                                            <i class="bi bi-hourglass-split me-1"></i>Đang chờ duyệt đơn mới
+                                        </span>
                                     }
-                                    else if (item.TrangThai == "TuChoi")
+                                    else if (item.TrangThai.Trim() == "ChoDuyetSua")
                                     {
-                                        <span class="badge bg-danger mb-1">Bị từ chối</span>
-                                        <div class="alert alert-danger p-2 m-0 mt-1 small rounded-3 shadow-sm" style="max-width: 250px;">
-                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                            <strong>Lý do:</strong> @item.LyDoTuChoi
+                                        <span class="badge bg-info text-dark px-3 py-2 rounded-pill shadow-sm">
+                                            <i class="bi bi-hourglass-split me-1"></i>Đang chờ duyệt sửa
+                                        </span>
+                                    }
+                                    else if (item.TrangThai.Trim() == "TuChoiSua")
+                                    {
+                                        <div class="d-flex flex-column gap-2 align-items-start my-1">
+                                            <span class="badge bg-danger px-3 py-1.5 rounded-pill shadow-sm">
+                                                <i class="bi bi-exclamation-octagon me-1"></i>Bị từ chối cập nhật
+                                            </span>
+                                            <div class="alert alert-danger p-2 m-0 small rounded-3 border-danger border-opacity-25 shadow-sm" style="max-width: 260px; line-height: 1.4;">
+                                                <strong>Lý do:</strong> <span class="text-danger">@item.LyDoTuChoi</span>
+                                                <hr class="my-1 border-danger opacity-25">
+                                                <span class="text-muted" style="font-size: 0.7rem;">Thông tin hiện tại là thông tin bạn vừa sửa. Hãy nhấn nút "Khắc phục" bên cạnh để nộp lại.</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (item.TrangThai.Trim() == "TuChoi")
+                                    {
+                                        <div class="d-flex flex-column gap-2 align-items-start my-2">
+                                            <span class="badge bg-danger px-3 py-1.5 rounded-pill shadow-sm">
+                                                <i class="bi bi-x-circle me-1"></i>Bị từ chối đăng ký
+                                            </span>
+                                            <div class="alert alert-danger p-2 m-0 small rounded-3 border-danger border-opacity-25 shadow-sm" style="max-width: 260px; line-height: 1.4;">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>
+                                                <strong>Lý do:</strong> <span class="text-danger">@item.LyDoTuChoi</span>
+                                            </div>
                                         </div>
                                     }
                                 </td>
-                            <td class="text-end pe-4">
-                                <div class="d-inline-flex gap-2 align-items-center justify-content-end">
 
-                                    @if (item.TrangThai == "ChoDuyet" || item.TrangThai == "TuChoi")
-                                    {
-                                        <form action="@Url.Action("XoaYeuCau", "DiaDiem")" method="POST" class="m-0" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY VÀ XÓA HOÀN TOÀN yêu cầu phê duyệt của địa chỉ này không?');">
-                                            <input type="hidden" name="id" value="@item.MaDD" />
-                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 fw-semibold" title="Hủy đăng ký">
-                                                <i class="bi bi-trash me-1"></i>Hủy yêu cầu
+                                <td class="text-end pe-4 align-middle text-nowrap">
+                                    <div class="d-inline-flex gap-2 align-items-center justify-content-end">
+
+                                        @if (item.TrangThai.Trim() == "ChoDuyet" || item.TrangThai.Trim() == "ChoDuyetSua")
+                                        {
+                                            <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3 py-1 fw-semibold opacity-50" style="cursor: not-allowed;" disabled>
+                                                <i class="bi bi-hourglass-split me-1"></i>Đang chờ duyệt
                                             </button>
-                                        </form>
-                                    }
+                                        }
+                                        else if (item.TrangThai.Trim() == "TuChoiSua")
+                                        {
+                                            <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-warning btn-sm rounded-pill px-3 py-1 fw-bold text-dark shadow-sm" title="Khắc phục lỗi và nộp lại">
+                                                <i class="bi bi-tools me-1"></i>Khắc phục lỗi
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-semibold" title="Chỉnh sửa thông tin">
+                                                <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
+                                            </a>
+                                        }
 
-                                    <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-semibold" title="Chỉnh sửa thông tin">
-                                        <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
-                                    </a>
+                                        @if (item.TrangThai.Trim() == "TuChoi")
+                                        {
+                                            <form action="@Url.Action("XoaYeuCau", "DiaDiem")" method="POST" class="m-0" onsubmit="return confirm('Bạn có muốn xóa bỏ vĩnh viễn đơn đăng ký bị từ chối này không?');">
+                                                <input type="hidden" name="id" value="@item.MaDD" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 fw-semibold" title="Xóa hồ sơ này">
+                                                    <i class="bi bi-trash3 me-1"></i>Xóa hồ sơ
+                                                </button>
+                                            </form>
+                                        }
 
-                                    @if (item.TrangThai == "DangHoatDong")
-                                    {
-                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold" target="_blank" title="Xem trên trang chủ">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên web
-                                        </a>
-                                    }
-                                </div>
-                            </td>
+                                        @if (item.TrangThai.Trim() == "DangHoatDong" || item.TrangThai.Trim() == "TuChoiSua")
+                                        {
+                                            <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold" title="Xem trên trang chủ">
+                                                <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên web
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -123,3 +181,37 @@
         text-overflow: ellipsis;
     }
 </style>
+
+<script>
+    function doiTrangThaiHoatDong(maDD, checkboxElement) {
+        // Khóa nút gạt trong lúc chờ server phản hồi để tránh click liên tục
+        checkboxElement.disabled = true;
+
+        fetch('@Url.Action("ToggleHoatDong", "ChuCSKD")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'maDD=' + maDD
+        })
+        .then(response => response.json())
+        .then(data => {
+            checkboxElement.disabled = false;
+            if (data.success) {
+                // Cập nhật lại nhãn text bên cạnh nút gạt
+                var label = document.getElementById('label_' + maDD);
+                if (data.trangThaiMoi === "DangHoatDong") {
+                    label.innerText = "Đang mở cửa";
+                    label.classList.replace("text-danger", "text-success"); // Đổi màu nếu muốn
+                } else {
+                    label.innerText = "Đang tạm nghỉ";
+                }
+            } else {
+                alert("Lỗi: " + data.message);
+                checkboxElement.checked = !checkboxElement.checked; // Trả lại trạng thái cũ
+            }
+        })
+        .catch(error => {
+            checkboxElement.disabled = false;
+            checkboxElement.checked = !checkboxElement.checked;
+        });
+    }
+</script>

@@ -117,6 +117,25 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
+        public bool XoaHinhAnh(int maHA)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var anh = db.HINHANH.Find(maHA);
+                    if (anh != null)
+                    {
+                        db.HINHANH.Remove(anh);
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
         // 1. Lấy danh sách các địa điểm do một tài khoản chủ quán đăng ký
         public List<DIADIEM> LayDanhSachTheoChuQuan(int maTK)
         {
@@ -151,6 +170,45 @@ namespace QuanLyAmThucNhaTrang.DAL
                         dd.KinhDo = ddThayDoi.KinhDo;
                         dd.TrangThai = ddThayDoi.TrangThai; // Cập nhật lại trạng thái nếu có thay đổi nghiệp vụ
 
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
+        public bool HuyYeuCauCapNhat(int maDD, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dd = db.DIADIEM.FirstOrDefault(d => d.MaDD == maDD && d.MaTK == maTK);
+                    // Chỉ xử lý nếu quán đang ở trạng thái chờ duyệt sửa
+                    if (dd != null && dd.TrangThai == "ChoDuyetSua")
+                    {
+                        dd.TrangThai = "DangHoatDong"; // Khôi phục lại trạng thái hiển thị trên Web
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
+        public bool CapNhatTrangThaiNhanh(int maDD, string trangThaiMoi)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dd = db.DIADIEM.Find(maDD);
+                    if (dd != null)
+                    {
+                        dd.TrangThai = trangThaiMoi; // Cập nhật thẳng trạng thái mới
                         db.SaveChanges();
                         return true;
                     }

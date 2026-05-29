@@ -98,21 +98,30 @@ namespace QuanLyAmThucNhaTrang.Controllers
         public ActionResult ChiTiet(int id)
         {
             var diaDiem = _diaDiemBLL.LayChiTietDiaDiem(id);
-            if (diaDiem == null) return HttpNotFound();
 
-            // Nếu người dùng nhập mã bậy bạ trên URL không tồn tại
+            // 1. Gộp điều kiện kiểm tra tồn tại
             if (diaDiem == null)
             {
                 return HttpNotFound("Không tìm thấy địa điểm ẩm thực này.");
             }
 
+            // 2. CHỐT CHẶN BẢO MẬT TRẠNG THÁI
+            // Chỉ chặn các đơn đăng ký mới (ChoDuyet) và bị từ chối hẳn (TuChoi)
+            // Các quán sửa thông tin (ChoDuyetSua, TuChoiSua) hay nghỉ lễ (TamNgung) vẫn được đi qua
+            string trangThai = diaDiem.TrangThai.Trim();
+            if (trangThai == "ChoDuyet" || trangThai == "TuChoi")
+            {
+                return HttpNotFound("Cơ sở này hiện không hoạt động hoặc đang chờ cấp phép.");
+            }
+
+            // 3. Xử lý chức năng Yêu thích (Giữ nguyên của bạn)
             bool daLuu = false;
             if (Session["MaTK"] != null)
             {
                 int maTK = (int)Session["MaTK"];
                 daLuu = _yeuThichBLL.KiemTraTrangThaiLuu(maTK, id);
             }
-            ViewBag.DaLuu = daLuu; // Gửi trạng thái sang View
+            ViewBag.DaLuu = daLuu;
             ViewBag.KhuyenMaiList = _khuyenMaiBLL.LayKhuyenMaiHieuLuc(id);
 
             return View(diaDiem);
