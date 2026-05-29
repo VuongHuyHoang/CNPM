@@ -1,4 +1,4 @@
-#Hướng dẫn cài đặt 
+# Hướng dẫn cài đặt 
   
 b1. mở thư mục QuanLyAmThucNhaTrang (không có đuôi để mở dự án)  
 b2. query_CSDL là cơ sở dữ liệu excute trên sqlServer để tạo csdl  
