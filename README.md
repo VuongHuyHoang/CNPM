@@ -1,3 +1,5 @@
+#Hướng dẫn cài đặt 
+  
 b1. mở thư mục QuanLyAmThucNhaTrang (không có đuôi để mở dự án)  
 b2. query_CSDL là cơ sở dữ liệu excute trên sqlServer để tạo csdl  
 b3. Đổi Connection String: Mở file Web.config trong project chính (QuanLyAmThucNhaTrang),
