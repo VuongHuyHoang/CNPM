@@ -1,10 +1,11 @@
-﻿using System;
+﻿using QuanLyAmThucNhaTrang.BLL;
+using QuanLyAmThucNhaTrang.DAL;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using QuanLyAmThucNhaTrang.BLL;
-using QuanLyAmThucNhaTrang.DAL;
 
 namespace QuanLyAmThucNhaTrang.Controllers
 {
@@ -115,6 +116,95 @@ namespace QuanLyAmThucNhaTrang.Controllers
             ViewBag.KhuyenMaiList = _khuyenMaiBLL.LayKhuyenMaiHieuLuc(id);
 
             return View(diaDiem);
+        }
+
+        // [POST] Xử lý đăng ký quán mới - Nhận nhiều file ảnh cùng lúc
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DangKyDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> hinhAnhs)
+        {
+            // 1. Kiểm tra điều kiện đăng nhập và quyền Chủ quán
+            if (Session["MaTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD")
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            int maTK = Convert.ToInt32(Session["MaTK"]);
+            dd.MaTK = maTK;
+
+            // 2. Chuyển đổi danh sách file hợp lệ (loại bỏ các file rỗng)
+            var danhSachFile = hinhAnhs != null
+                ? hinhAnhs.Where(f => f != null && f.ContentLength > 0).ToList()
+                : new List<HttpPostedFileBase>();
+
+            // 3. RÀNG BUỘC QĐ5: Kiểm tra số lượng ảnh tối thiểu (ít nhất 2 ảnh mặt tiền)
+            if (danhSachFile.Count < 2)
+            {
+                ModelState.AddModelError("", "Biểu mẫu bắt buộc phải tải lên ít nhất 2 hình ảnh mặt tiền quán để xác minh!");
+                // Nạp lại các danh mục, khu vực cho Dropdown trước khi trả về View hiển thị lỗi
+                ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM");
+                ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV");
+                return View(dd);
+            }
+
+            if (ModelState.IsValid)
+            {
+                // 4. Lưu thông tin địa điểm trước để sinh ra MaDD (Khóa chính tự tăng)
+                int maDDMoi = _diaDiemBLL.ThemDiaDiemMoi(dd);
+
+                if (maDDMoi > 0)
+                {
+                    // 5. Vòng lặp lưu từng file ảnh vào thư mục và ghi vào CSDL
+                    int thuTu = 1;
+                    foreach (var file in danhSachFile)
+                    {
+                        // Tạo tên file duy nhất bằng GUID để tránh trùng lặp tệp tin trên máy chủ
+                        string tenFile = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string duongDanThuMuc = Server.MapPath("~/images/uploads/");
+
+                        // Đảm bảo thư mục tồn tại
+                        if (!Directory.Exists(duongDanThuMuc)) Directory.CreateDirectory(duongDanThuMuc);
+
+                        string duongDanVatLy = Path.Combine(duongDanThuMuc, tenFile);
+                        file.SaveAs(duongDanVatLy); // Lưu file vào ổ cứng server
+
+                        // Đường dẫn tương đối lưu xuống database để hiển thị trên web
+                        string duongDanDb = "/images/uploads/" + tenFile;
+
+                        // Gọi BLL ghi vào bảng HINHANH, gán loại hình là 'MatTien' cho các ảnh xác minh ban đầu
+                        _diaDiemBLL.ThemHinhAnh(maDDMoi, duongDanDb, "MatTien");
+                        thuTu++;
+                    }
+
+                    TempData["Success"] = "Gửi yêu cầu đăng ký địa điểm thành công! Vui lòng chờ Ban quản trị kiểm duyệt.";
+                    return RedirectToAction("QuanLyGianHang", "ChuCSKD");
+                }
+            }
+
+            return View(dd);
+        }
+
+        // [POST] Xử lý hủy yêu cầu phê duyệt từ phía Chủ quán
+        [HttpPost]
+        public ActionResult XoaYeuCau(int id)
+        {
+            if (Session["MaTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD")
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            int maTK = Convert.ToInt32(Session["MaTK"]);
+
+            if (_diaDiemBLL.XoaYeuCauDangKy(id, maTK))
+            {
+                TempData["Success"] = "Đã hủy bỏ và xóa hoàn toàn yêu cầu phê duyệt địa điểm thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Không thể xóa yêu cầu này (Có thể địa điểm đã được phê duyệt hoặc không thuộc quyền sở hữu của bạn).";
+            }
+
+            return RedirectToAction("QuanLyGianHang", "ChuCSKD");
         }
     }
 }

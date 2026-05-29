@@ -41,6 +41,7 @@
     <Property Name="MaTK" Type="int" Nullable="false" />
     <Property Name="MaDM" Type="int" Nullable="false" />
     <Property Name="MaKV" Type="int" Nullable="false" />
+    <Property Name="LyDoTuChoi" Type="nvarchar" MaxLength="500" />
   </EntityType>
   <EntityType Name="HINHANH">
     <Key>

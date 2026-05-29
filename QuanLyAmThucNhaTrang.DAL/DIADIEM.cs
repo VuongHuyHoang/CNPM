@@ -39,6 +39,7 @@ namespace QuanLyAmThucNhaTrang.DAL
         public int MaTK { get; set; }
         public int MaDM { get; set; }
         public int MaKV { get; set; }
+        public string LyDoTuChoi { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DANHGIA> DANHGIA { get; set; }

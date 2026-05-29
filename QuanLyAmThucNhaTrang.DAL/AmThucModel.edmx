@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QuanLyAmThucNhaTrangModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QuanLyAmThucNhaTrangModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="DANHGIA">
           <Key>
             <PropertyRef Name="MaDG" />
@@ -46,6 +46,7 @@
           <Property Name="MaTK" Type="int" Nullable="false" />
           <Property Name="MaDM" Type="int" Nullable="false" />
           <Property Name="MaKV" Type="int" Nullable="false" />
+          <Property Name="LyDoTuChoi" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="HINHANH">
           <Key>
@@ -351,8 +352,7 @@
             <End Role="YEUTHICH" EntitySet="YEUTHICH" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QuanLyAmThucNhaTrangModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -408,6 +408,7 @@
           <NavigationProperty Name="HINHANH" Relationship="Self.FK_HinhAnh_DiaDiem" FromRole="DIADIEM" ToRole="HINHANH" />
           <NavigationProperty Name="KHUYENMAI" Relationship="Self.FK_KhuyenMai_DiaDiem" FromRole="DIADIEM" ToRole="KHUYENMAI" />
           <NavigationProperty Name="YEUTHICH" Relationship="Self.FK_YeuThich_DiaDiem" FromRole="DIADIEM" ToRole="YEUTHICH" />
+          <Property Name="LyDoTuChoi" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="HINHANH">
           <Key>
@@ -766,6 +767,7 @@
           <EntitySetMapping Name="DIADIEM">
             <EntityTypeMapping TypeName="QuanLyAmThucNhaTrangModel.DIADIEM">
               <MappingFragment StoreEntitySet="DIADIEM">
+                <ScalarProperty Name="LyDoTuChoi" ColumnName="LyDoTuChoi" />
                 <ScalarProperty Name="MaDD" ColumnName="MaDD" />
                 <ScalarProperty Name="TenDD" ColumnName="TenDD" />
                 <ScalarProperty Name="DiaChiChiTiet" ColumnName="DiaChiChiTiet" />

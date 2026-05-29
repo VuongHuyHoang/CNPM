@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminDAL.cs" />
     <Compile Include="AmThucModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -68,6 +69,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AmThucModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="BaoCaoDanhGiaVM.cs" />
+    <Compile Include="BaoCaoDiaDiemVM.cs" />
+    <Compile Include="BaoCaoTaiKhoanVM.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="DANHGIA.cs">
       <DependentUpon>AmThucModel.tt</DependentUpon>

@@ -10,6 +10,7 @@ namespace QuanLyAmThucNhaTrang.BLL
     public class DiaDiemBLL
     {
         private DiaDiemDAL _diaDiemDAL = new DiaDiemDAL();
+
         public List<DIADIEM> TimKiemVaLoc(string tuKhoa, int? maDM, int? maKV)
         {
             return _diaDiemDAL.TimKiemVaLoc(tuKhoa, maDM, maKV);
@@ -17,7 +18,12 @@ namespace QuanLyAmThucNhaTrang.BLL
 
         public List<DANHMUC> LayTatCaDanhMuc()
         {
-            return _diaDiemDAL.LayTatCaDanhMuc();
+            // NGHIỆP VỤ MỚI BỔ SUNG (QĐ11): 
+            // Dùng LINQ để lọc, chỉ trả về các Danh mục đang ở trạng thái "HoatDong".
+            // Tránh trường hợp Chủ quán chọn nhầm vào Danh mục đã bị Admin "NgungSuDung".
+            return _diaDiemDAL.LayTatCaDanhMuc()
+                              .Where(dm => dm.TrangThai == "HoatDong")
+                              .ToList();
         }
 
         public List<KHUVUC> LayTatCaKhuVuc()
@@ -30,10 +36,16 @@ namespace QuanLyAmThucNhaTrang.BLL
             // Có thể thêm logic kiểm tra dữ liệu hoặc giới hạn số lượng quán ở đây nếu muốn
             return _diaDiemDAL.LayDanhSachTrangChu();
         }
+
         public DIADIEM LayChiTietDiaDiem(int maDD)
         {
             // Nếu sau này bạn cần đếm số lượt xem (View count), có thể viết code cộng lượt xem ở đây
             return _diaDiemDAL.LayChiTietDiaDiem(maDD);
+        }
+
+        public bool XoaYeuCauDangKy(int maDD, int maTK)
+        {
+            return _diaDiemDAL.XoaYeuCauDangKy(maDD, maTK);
         }
 
         // Thêm địa điểm với các giá trị mặc định ban đầu
@@ -43,6 +55,7 @@ namespace QuanLyAmThucNhaTrang.BLL
             dd.TrangThai = "ChoDuyet"; // Bắt buộc chờ Admin duyệt
             dd.DiemDanhGiaTB = 0;
             dd.SoLuotDanhGia = 0;
+            dd.NgayDangKy = DateTime.Now;
 
             return _diaDiemDAL.ThemDiaDiemMoi(dd);
         }

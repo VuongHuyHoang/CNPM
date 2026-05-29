@@ -53,6 +53,12 @@
       <HintPath>packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PagedList, Version=1.17.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
+    </Reference>
+    <Reference Include="PagedList.Mvc, Version=4.5.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>packages\PagedList.Mvc.4.5.0.0\lib\net40\PagedList.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -127,6 +133,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\ChuCSKDController.cs" />
     <Compile Include="Controllers\DiaDiemController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -154,6 +161,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\PagedList.css" />
     <Content Include="Content\StyleAdmin.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -211,6 +219,14 @@
     <Content Include="Views\ChuCSKD\TrangCaNhan.cshtml" />
     <Content Include="Views\ChuCSKD\KhuyenMai.cshtml" />
     <Content Include="Views\ChuCSKD\PhanHoiDanhGia.cshtml" />
+    <Content Include="Views\Admin\KiemDuyetDiaDiem.cshtml" />
+    <Content Include="Views\Admin\Dashboard.cshtml" />
+    <Content Include="Views\Admin\QuanLyDanhGia.cshtml" />
+    <Content Include="Views\Admin\QuanLyDanhMuc.cshtml" />
+    <Content Include="Views\Admin\QuanLyThamSo.cshtml" />
+    <Content Include="Views\Admin\BaoCaoDiaDiem.cshtml" />
+    <Content Include="Views\Admin\BaoCaoTaiKhoan.cshtml" />
+    <Content Include="Views\Admin\BaoCaoDanhGia.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

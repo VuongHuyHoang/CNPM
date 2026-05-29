@@ -34,48 +34,63 @@ namespace QuanLyAmThucNhaTrang.Controllers
 
         // 2. XỬ LÝ LƯU DỮ LIỆU VÀ FILE ẢNH (POST)
         [HttpPost]
-        [ValidateInput(false)] // Cho phép nhập mô tả có ký tự đặc biệt (HTML)
-        public ActionResult ThemDiaDiem(DIADIEM dd, HttpPostedFileBase AnhMatTien)
+        [ValidateAntiForgeryToken]
+        public ActionResult ThemDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> hinhAnhs)
         {
-            if (Session["LoaiTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD") return RedirectToAction("DangNhap", "TaiKhoan");
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
 
-            try
+            int maTK = Convert.ToInt32(Session["MaTK"]);
+            dd.MaTK = maTK;
+
+            // Lọc bỏ các file rỗng nếu có
+            var danhSachFile = hinhAnhs != null
+                ? hinhAnhs.Where(f => f != null && f.ContentLength > 0).ToList()
+                : new List<HttpPostedFileBase>();
+
+            // Ràng buộc kiểm tra tối thiểu 2 ảnh
+            if (danhSachFile.Count < 2)
             {
-                // Gán mã người tạo (Chủ quán)
-                dd.MaTK = (int)Session["MaTK"];
-
-                // 1. Lưu thông tin địa điểm vào DB trước để lấy MaDD
-                int maDDMoi = _diaDiemBLL.ThemDiaDiemMoi(dd);
-
-                // 2. Xử lý Upload file ảnh mặt tiền (Nếu có chọn file)
-                if (AnhMatTien != null && AnhMatTien.ContentLength > 0)
-                {
-                    // Tạo tên file ngẫu nhiên để không bị trùng lặp (Thêm mốc thời gian)
-                    string fileName = Path.GetFileName(AnhMatTien.FileName);
-                    string uniqueName = DateTime.Now.ToString("yyyyMMdd_HHmmss_") + fileName;
-
-                    // Chỉ định đường dẫn vật lý trên Server
-                    string serverPath = Path.Combine(Server.MapPath("~/images/uploads/"), uniqueName);
-
-                    // Lưu file vật lý
-                    AnhMatTien.SaveAs(serverPath);
-
-                    // Lưu đường dẫn tương đối vào DB
-                    string dbPath = "/images/uploads/" + uniqueName;
-                    _diaDiemBLL.ThemHinhAnh(maDDMoi, dbPath, "MatTien");
-                }
-
-                TempData["Success"] = "Đăng ký địa điểm thành công! Vui lòng chờ Ban Quản Trị xét duyệt.";
-                return RedirectToAction("ThemDiaDiem");
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Có lỗi xảy ra: " + ex.Message;
-                // Nạp lại Viewbag nếu form bị lỗi
+                ViewBag.Error = "Biểu mẫu bắt buộc phải tải lên ít nhất 2 hình ảnh mặt tiền quán để xác minh!";
                 ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM");
                 ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV");
                 return View(dd);
             }
+
+            if (ModelState.IsValid)
+            {
+                // 1. Lưu thông tin cơ bản của Địa điểm trước để sinh ra MaDD tự tăng
+                int maDDMoi = _diaDiemBLL.ThemDiaDiemMoi(dd);
+
+                if (maDDMoi > 0)
+                {
+                    // 2. Vòng lặp duyệt qua từng file ảnh để lưu vào thư mục và Database
+                    foreach (var file in danhSachFile)
+                    {
+                        // Tạo tên file duy nhất bằng GUID tránh trùng lặp tệp tin
+                        string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+                        string duongDanThuMuc = Server.MapPath("~/images/uploads/");
+
+                        if (!System.IO.Directory.Exists(duongDanThuMuc))
+                            System.IO.Directory.CreateDirectory(duongDanThuMuc);
+
+                        string duongDanVatLy = System.IO.Path.Combine(duongDanThuMuc, tenFile);
+                        file.SaveAs(duongDanVatLy); // Lưu file vào thư mục vật lý của Server
+
+                        // Đường dẫn tương đối dùng để hiển thị lên giao diện web
+                        string duongDanDb = "/images/uploads/" + tenFile;
+
+                        // Gọi tầng nghiệp vụ lưu đường dẫn này vào bảng HINHANH với loại 'MatTien'
+                        _diaDiemBLL.ThemHinhAnh(maDDMoi, duongDanDb, "MatTien");
+                    }
+
+                    TempData["Success"] = "Gửi yêu cầu đăng ký địa điểm thành công! Vui lòng chờ kiểm duyệt.";
+                    return RedirectToAction("QuanLyGianHang");
+                }
+            }
+
+            ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM");
+            ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV");
+            return View(dd);
         }
 
         // 3. TRANG DANH SÁCH GIAN HÀNG CỦA TÔI (GET)
@@ -113,12 +128,38 @@ namespace QuanLyAmThucNhaTrang.Controllers
         // 5. XỬ LÝ LƯU THÔNG TIN SỬA ĐỔI (POST)
         [HttpPost]
         [ValidateInput(false)]
-        public ActionResult SuaDiaDiem(DIADIEM dd)
+        public ActionResult SuaDiaDiem(DIADIEM dd, IEnumerable<HttpPostedFileBase> anhKhongGian, IEnumerable<HttpPostedFileBase> anhThucDon)
         {
             if (Session["LoaiTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD") return RedirectToAction("DangNhap", "TaiKhoan");
 
             if (_diaDiemBLL.CapNhatGianHang(dd))
             {
+                string duongDanThuMuc = Server.MapPath("~/images/uploads/");
+                if (!System.IO.Directory.Exists(duongDanThuMuc)) System.IO.Directory.CreateDirectory(duongDanThuMuc);
+
+                // 2. Xử lý lưu ảnh Không Gian
+                if (anhKhongGian != null)
+                {
+                    foreach (var file in anhKhongGian.Where(f => f != null && f.ContentLength > 0))
+                    {
+                        string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+                        file.SaveAs(System.IO.Path.Combine(duongDanThuMuc, tenFile));
+                        // Gọi BLL lưu vào DB với loại "KhongGian"
+                        _diaDiemBLL.ThemHinhAnh(dd.MaDD, "/images/uploads/" + tenFile, "KhongGian");
+                    }
+                }
+
+                // 3. Xử lý lưu ảnh Thực Đơn
+                if (anhThucDon != null)
+                {
+                    foreach (var file in anhThucDon.Where(f => f != null && f.ContentLength > 0))
+                    {
+                        string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+                        file.SaveAs(System.IO.Path.Combine(duongDanThuMuc, tenFile));
+                        // Gọi BLL lưu vào DB với loại "ThucDon"
+                        _diaDiemBLL.ThemHinhAnh(dd.MaDD, "/images/uploads/" + tenFile, "ThucDon");
+                    }
+                }
                 TempData["Success"] = "Cập nhật thông tin gian hàng thành công! Quán đang chờ kiểm duyệt lại.";
                 return RedirectToAction("QuanLyGianHang");
             }

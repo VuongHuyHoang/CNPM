@@ -33,7 +33,7 @@
                             <th class="py-3">Số điện thoại</th>
                             <th class="py-3">Giờ mở cửa</th>
                             <th class="py-3">Trạng thái duyệt</th>
-                            <th class="text-end pe-4 py-3">Thao tác</th>
+                            <th class="text-center pe-4 py-3">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -48,32 +48,48 @@
                                 <td class="text-secondary">@(string.IsNullOrEmpty(item.SDT) ? "Chưa cập nhật" : item.SDT)</td>
                                 <td class="text-secondary">@item.GioMoCua - @item.GioDongCua</td>
                                 <td>
-                                    @if (item.TrangThai == "HoatDong")
+                                    @if (item.TrangThai == "DangHoatDong")
                                     {
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Đang hoạt động</span>
+                                        <span class="badge bg-success">Đang hoạt động</span>
                                     }
                                     else if (item.TrangThai == "ChoDuyet")
                                     {
-                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-hourglass-split me-1"></i>Chờ xét duyệt</span>
+                                        <span class="badge bg-warning text-dark">Đang chờ duyệt</span>
                                     }
-                                    else
+                                    else if (item.TrangThai == "TuChoi")
                                     {
-                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-2.5 py-1.5 rounded-pill fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Bị từ chối</span>
+                                        <span class="badge bg-danger mb-1">Bị từ chối</span>
+                                        <div class="alert alert-danger p-2 m-0 mt-1 small rounded-3 shadow-sm" style="max-width: 250px;">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                            <strong>Lý do:</strong> @item.LyDoTuChoi
+                                        </div>
                                     }
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-2">
-                                        <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1fw-semibold" title="Chỉnh sửa thông tin">
-                                            <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-2 align-items-center justify-content-end">
+
+                                    @if (item.TrangThai == "ChoDuyet" || item.TrangThai == "TuChoi")
+                                    {
+                                        <form action="@Url.Action("XoaYeuCau", "DiaDiem")" method="POST" class="m-0" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY VÀ XÓA HOÀN TOÀN yêu cầu phê duyệt của địa chỉ này không?');">
+                                            <input type="hidden" name="id" value="@item.MaDD" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 fw-semibold" title="Hủy đăng ký">
+                                                <i class="bi bi-trash me-1"></i>Hủy yêu cầu
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <a href="@Url.Action("SuaDiaDiem", "ChuCSKD", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-semibold" title="Chỉnh sửa thông tin">
+                                        <i class="bi bi-pencil-square me-1"></i>Sửa thông tin
+                                    </a>
+
+                                    @if (item.TrangThai == "DangHoatDong")
+                                    {
+                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold" target="_blank" title="Xem trên trang chủ">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên web
                                         </a>
-                                        @if (item.TrangThai == "HoatDong")
-                                        {
-                                            <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold" target="_blank">
-                                                <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên web
-                                            </a>
-                                        }
-                                    </div>
-                                </td>
+                                    }
+                                </div>
+                            </td>
                             </tr>
                         }
                     </tbody>

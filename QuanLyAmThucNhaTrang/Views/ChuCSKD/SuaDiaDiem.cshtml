@@ -70,6 +70,20 @@
                         <label class="form-label small fw-bold">Mô tả ngắn gọn</label>
                         <textarea name="MoTa" class="form-control" rows="4">@Model.MoTa</textarea>
                     </div>
+
+                    <h6 class="fw-bold text-secondary mt-4 mb-3">Bổ sung hình ảnh chi tiết</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ảnh Không gian quán</label>
+                            <input type="file" name="anhKhongGian" class="form-control" accept="image/*" multiple />
+                            <small class="text-muted fst-italic">Có thể chọn nhiều ảnh cùng lúc.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ảnh Thực đơn / Món ăn</label>
+                            <input type="file" name="anhThucDon" class="form-control" accept="image/*" multiple />
+                            <small class="text-muted fst-italic">Có thể chọn nhiều ảnh cùng lúc.</small>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-lg-6">

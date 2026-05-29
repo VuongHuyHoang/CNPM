@@ -99,7 +99,7 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
-        // 2. Thêm hình ảnh cho địa điểm
+        // Tầng DAL chỉ cần nhận nguyên Object và lưu vào CSDL
         public bool ThemHinhAnh(HINHANH ha)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
@@ -107,10 +107,13 @@ namespace QuanLyAmThucNhaTrang.DAL
                 try
                 {
                     db.HINHANH.Add(ha);
-                    db.SaveChanges();
+                    db.SaveChanges(); // Lệnh này sẽ chính thức lưu nhiều ảnh vào Database
                     return true;
                 }
-                catch { return false; }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -154,6 +157,41 @@ namespace QuanLyAmThucNhaTrang.DAL
                     return false;
                 }
                 catch { return false; }
+            }
+        }
+
+        // Hàm xóa yêu cầu phê duyệt dành cho Chủ quán
+        public bool XoaYeuCauDangKy(int maDD, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dd = db.DIADIEM.FirstOrDefault(d => d.MaDD == maDD && d.MaTK == maTK);
+
+                    // Sử dụng Trim() để phòng hờ lỗi khoảng trắng
+                    if (dd != null && (dd.TrangThai.Trim() == "ChoDuyet" || dd.TrangThai.Trim() == "TuChoi"))
+                    {
+                        // 1. Dọn dẹp bảng HINHANH
+                        var dsAnh = db.HINHANH.Where(h => h.MaDD == maDD).ToList();
+                        if (dsAnh.Count > 0) db.HINHANH.RemoveRange(dsAnh);
+
+                        // 2. Dọn dẹp bảng KHUYENMAI (Đây chính là chìa khóa fix lỗi!)
+                        var dsKhuyenMai = db.KHUYENMAI.Where(k => k.MaDD == maDD).ToList();
+                        if (dsKhuyenMai.Count > 0) db.KHUYENMAI.RemoveRange(dsKhuyenMai);
+
+                   
+                        db.DIADIEM.Remove(dd);
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                    return false;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
     }

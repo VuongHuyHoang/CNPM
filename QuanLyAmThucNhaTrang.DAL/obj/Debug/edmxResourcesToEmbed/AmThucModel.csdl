@@ -52,6 +52,7 @@
     <NavigationProperty Name="HINHANH" Relationship="Self.FK_HinhAnh_DiaDiem" FromRole="DIADIEM" ToRole="HINHANH" />
     <NavigationProperty Name="KHUYENMAI" Relationship="Self.FK_KhuyenMai_DiaDiem" FromRole="DIADIEM" ToRole="KHUYENMAI" />
     <NavigationProperty Name="YEUTHICH" Relationship="Self.FK_YeuThich_DiaDiem" FromRole="DIADIEM" ToRole="YEUTHICH" />
+    <Property Name="LyDoTuChoi" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="HINHANH">
     <Key>
