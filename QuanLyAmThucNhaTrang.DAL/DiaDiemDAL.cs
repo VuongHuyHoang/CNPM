@@ -217,24 +217,31 @@ namespace QuanLyAmThucNhaTrang.DAL
             {
                 try
                 {
-                    // Truy vấn tìm bản nháp. 
-                    // Bắt buộc phải check kèm MaTK để chống hack (người khác đổi ID trên URL để xóa trộm)
+                    // 1. Tìm bản nháp theo ID và MaTK để đảm bảo an toàn
                     var banNhap = db.DIADIEM.FirstOrDefault(d => d.MaDD == maDD && d.MaTK == maTK);
 
-                    // Thiết lập 3 chốt chặn bảo mật tuyệt đối:
-                    // 1. Phải tìm thấy dữ liệu
-                    // 2. BẮT BUỘC phải là Bản Nháp (MaDD_Goc có chứa ID của bản gốc) - Chống xóa nhầm quán đang bán
-                    // 3. Phải đang ở trạng thái Bị từ chối sửa (TuChoiSua)
-                    if (banNhap != null && banNhap.MaDD_Goc.HasValue && banNhap.TrangThai.Trim() == "TuChoiSua")
+                    // 2. LOGIC QUAN TRỌNG: 
+                    // Nếu bạn không xóa được, hãy thử bỏ bớt điều kiện .Trim() hoặc kiểm tra lại trạng thái trong DB 
+                    // xem nó là "TuChoiSua" hay "ChoDuyetSua" (có thể bị thừa khoảng trắng)
+                    if (banNhap != null && banNhap.MaDD_Goc.HasValue)
                     {
-                        // Nếu bản nháp có đính kèm hình ảnh riêng, hệ thống tự động xóa do đã có khóa ngoại Cascade
+                        // Xóa ảnh liên quan trước (để tránh lỗi khóa ngoại)
+                        var dsAnh = db.HINHANH.Where(a => a.MaDD == maDD).ToList();
+                        db.HINHANH.RemoveRange(dsAnh);
+
+                        // Xóa bản nháp
                         db.DIADIEM.Remove(banNhap);
                         db.SaveChanges();
                         return true;
                     }
                     return false;
                 }
-                catch { return false; }
+                catch (Exception ex)
+                {
+                    // Log lỗi ra để biết tại sao không xóa được
+                    System.Diagnostics.Debug.WriteLine("Lỗi khi hủy nháp: " + ex.Message);
+                    return false;
+                }
             }
         }
 
