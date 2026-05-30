@@ -47,6 +47,7 @@
           <Property Name="MaDM" Type="int" Nullable="false" />
           <Property Name="MaKV" Type="int" Nullable="false" />
           <Property Name="LyDoTuChoi" Type="nvarchar" MaxLength="500" />
+          <Property Name="MaDD_Goc" Type="int" />
         </EntityType>
         <EntityType Name="HINHANH">
           <Key>
@@ -156,6 +157,18 @@
             </Principal>
             <Dependent Role="DIADIEM">
               <PropertyRef Name="MaDM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DiaDiem_DiaDiemGoc">
+          <End Role="DIADIEM" Type="Self.DIADIEM" Multiplicity="0..1" />
+          <End Role="DIADIEM1" Type="Self.DIADIEM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DIADIEM">
+              <PropertyRef Name="MaDD" />
+            </Principal>
+            <Dependent Role="DIADIEM1">
+              <PropertyRef Name="MaDD_Goc" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -309,6 +322,10 @@
             <End Role="DANHMUC" EntitySet="DANHMUC" />
             <End Role="DIADIEM" EntitySet="DIADIEM" />
           </AssociationSet>
+          <AssociationSet Name="FK_DiaDiem_DiaDiemGoc" Association="Self.FK_DiaDiem_DiaDiemGoc">
+            <End Role="DIADIEM" EntitySet="DIADIEM" />
+            <End Role="DIADIEM1" EntitySet="DIADIEM" />
+          </AssociationSet>
           <AssociationSet Name="FK_DiaDiem_KhuVuc" Association="Self.FK_DiaDiem_KhuVuc">
             <End Role="KHUVUC" EntitySet="KHUVUC" />
             <End Role="DIADIEM" EntitySet="DIADIEM" />
@@ -399,6 +416,9 @@
           <NavigationProperty Name="KHUYENMAI" Relationship="Self.FK_KhuyenMai_DiaDiem" FromRole="DIADIEM" ToRole="KHUYENMAI" />
           <NavigationProperty Name="YEUTHICH" Relationship="Self.FK_YeuThich_DiaDiem" FromRole="DIADIEM" ToRole="YEUTHICH" />
           <Property Name="LyDoTuChoi" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="MaDD_Goc" Type="Int32" />
+          <NavigationProperty Name="DIADIEM1" Relationship="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc" FromRole="DIADIEM" ToRole="DIADIEM1" />
+          <NavigationProperty Name="DIADIEM2" Relationship="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc" FromRole="DIADIEM1" ToRole="DIADIEM" />
         </EntityType>
         <EntityType Name="HINHANH">
           <Key>
@@ -703,6 +723,10 @@
             <Parameter Name="new_diagramname" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="sp_upgraddiagrams" />
+          <AssociationSet Name="FK_DiaDiem_DiaDiemGoc" Association="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc">
+            <End Role="DIADIEM" EntitySet="DIADIEM" />
+            <End Role="DIADIEM1" EntitySet="DIADIEM" />
+          </AssociationSet>
         </EntityContainer>
         <ComplexType Name="sp_helpdiagramdefinition_Result">
           <Property Type="Int32" Name="version" Nullable="true" />
@@ -715,6 +739,18 @@
           <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
           <Property Type="Int32" Name="OwnerID" Nullable="false" />
         </ComplexType>
+        <Association Name="FK_DiaDiem_DiaDiemGoc">
+          <End Type="QuanLyAmThucNhaTrangModel.DIADIEM" Role="DIADIEM" Multiplicity="0..1" />
+          <End Type="QuanLyAmThucNhaTrangModel.DIADIEM" Role="DIADIEM1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DIADIEM">
+              <PropertyRef Name="MaDD" />
+            </Principal>
+            <Dependent Role="DIADIEM1">
+              <PropertyRef Name="MaDD_Goc" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -747,6 +783,7 @@
           <EntitySetMapping Name="DIADIEM">
             <EntityTypeMapping TypeName="QuanLyAmThucNhaTrangModel.DIADIEM">
               <MappingFragment StoreEntitySet="DIADIEM">
+                <ScalarProperty Name="MaDD_Goc" ColumnName="MaDD_Goc" />
                 <ScalarProperty Name="LyDoTuChoi" ColumnName="LyDoTuChoi" />
                 <ScalarProperty Name="MaDD" ColumnName="MaDD" />
                 <ScalarProperty Name="TenDD" ColumnName="TenDD" />

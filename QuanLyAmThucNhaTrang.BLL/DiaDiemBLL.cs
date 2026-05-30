@@ -33,13 +33,11 @@ namespace QuanLyAmThucNhaTrang.BLL
 
         public List<DIADIEM> LayDanhSachTrangChu()
         {
-            // Có thể thêm logic kiểm tra dữ liệu hoặc giới hạn số lượng quán ở đây nếu muốn
             return _diaDiemDAL.LayDanhSachTrangChu();
         }
 
         public DIADIEM LayChiTietDiaDiem(int maDD)
         {
-            // Nếu sau này bạn cần đếm số lượt xem (View count), có thể viết code cộng lượt xem ở đây
             return _diaDiemDAL.LayChiTietDiaDiem(maDD);
         }
 
@@ -48,14 +46,14 @@ namespace QuanLyAmThucNhaTrang.BLL
             return _diaDiemDAL.XoaYeuCauDangKy(maDD, maTK);
         }
 
-        // Thêm địa điểm với các giá trị mặc định ban đầu
+        // Thêm địa điểm với các giá trị mặc định ban đầu (Đăng ký mới tinh)
         public int ThemDiaDiemMoi(DIADIEM dd)
         {
-            // Thiết lập giá trị mặc định cho quán mới đăng ký
-            dd.TrangThai = "ChoDuyet"; // Bắt buộc chờ Admin duyệt
+            dd.TrangThai = "ChoDuyet"; // Bắt buộc chờ Admin duyệt cấp phép
             dd.DiemDanhGiaTB = 0;
             dd.SoLuotDanhGia = 0;
             dd.NgayDangKy = DateTime.Now;
+            dd.MaDD_Goc = null; // Đơn mới tinh thì không có bản ghi gốc
 
             return _diaDiemDAL.ThemDiaDiemMoi(dd);
         }
@@ -71,6 +69,7 @@ namespace QuanLyAmThucNhaTrang.BLL
             };
             return _diaDiemDAL.ThemHinhAnh(ha);
         }
+
         public bool XoaHinhAnh(int maHA)
         {
             return _diaDiemDAL.XoaHinhAnh(maHA);
@@ -81,18 +80,79 @@ namespace QuanLyAmThucNhaTrang.BLL
             return _diaDiemDAL.LayDanhSachTheoChuQuan(maTK);
         }
 
-        public bool CapNhatGianHang(DIADIEM dd)
+        /// <summary>
+        /// HÀM NÂNG CẤP: Xử lý chỉnh sửa thông tin gian hàng theo cơ chế Bản sao dữ liệu (Draft Pattern)
+        /// </summary>
+        public int CapNhatGianHang(DIADIEM dd)
         {
-            // Nghiệp vụ bảo mật: Mỗi khi sửa thông tin, hệ thống tự động ép trạng thái về "ChoDuyet"
-            // để Admin kiểm tra lại tính chính xác trước khi cho hiển thị công khai.
-            dd.TrangThai = "ChoDuyetSua";
+            // 1. Kiểm tra trạng thái hiện tại của thực thể trong Cơ sở dữ liệu
+            var quanHienTai = _diaDiemDAL.LayChiTietDiaDiem(dd.MaDD);
 
-            return _diaDiemDAL.CapNhatDiaDiem(dd);
+            // LỖI 1 ĐÃ SỬA: Đổi return false thành return -1
+            if (quanHienTai == null) return -1;
+
+            // THỨ NHẤT: Nếu thực thể đang sửa đổi là BẢN GHI GỐC (Chưa từng nhân bản)
+            if (quanHienTai.MaDD_Goc == null)
+            {
+                string trangThaiGoc = quanHienTai.TrangThai.Trim();
+
+                // Nếu quán gốc Đang hoạt động hoặc Tạm ngưng -> TIẾN HÀNH NHÂN BẢN DÒNG MỚI (INSERT)
+                if (trangThaiGoc == "DangHoatDong" || trangThaiGoc == "TamNgung")
+                {
+                    DIADIEM banNhapMoi = new DIADIEM
+                    {
+                        TenDD = dd.TenDD,
+                        DiaChiChiTiet = dd.DiaChiChiTiet,
+                        SDT = dd.SDT,
+                        GioMoCua = dd.GioMoCua,
+                        GioDongCua = dd.GioDongCua,
+                        MaDM = dd.MaDM,
+                        MaKV = dd.MaKV,
+                        ViDo = dd.ViDo,
+                        KinhDo = dd.KinhDo,
+                        MoTa = dd.MoTa,
+                        MaTK = quanHienTai.MaTK,
+                        NgayDangKy = DateTime.Now,
+
+                        TrangThai = "ChoDuyetSua",
+                        MaDD_Goc = quanHienTai.MaDD
+                    };
+
+                    // LỖI 2 ĐÃ SỬA: Hàm ThemDiaDiemMoi vốn đã trả về INT (Mã bản nháp), 
+                    // nên ta return trực tiếp nó luôn, bỏ cái "> 0" đi
+                    return _diaDiemDAL.ThemDiaDiemMoi(banNhapMoi);
+                }
+                // Nếu đơn gốc là đơn đăng ký mới hoàn toàn đang bị từ chối (TuChoi) -> CẬP NHẬT TRỰC TIẾP (UPDATE)
+                else
+                {
+                    if (trangThaiGoc == "TuChoi") dd.TrangThai = "ChoDuyet";
+                    dd.LyDoTuChoi = null;
+
+                    // LỖI 3 ĐÃ SỬA: Nếu update thành công thì trả về ID quán, thất bại thì trả về -1
+                    return _diaDiemDAL.CapNhatDiaDiem(dd) ? dd.MaDD : -1;
+                }
+            }
+
+            // THỨ HAI: Nếu thực thể đang sửa đổi ĐÃ LÀ BẢN GHI NHÁP (Đã có MaDD_Goc)
+            // Tức là chủ quán đang sửa lại lỗi trên bản nháp vừa bị Admin từ chối (TuChoiSua)
+            else
+            {
+                dd.TrangThai = "ChoDuyetSua"; // Đưa trạng thái bản nháp quay lại Chờ duyệt sửa
+                dd.MaDD_Goc = quanHienTai.MaDD_Goc; // Giữ nguyên liên kết tới quán gốc
+                dd.LyDoTuChoi = null; // Gỡ bỏ dòng lý do từ chối cũ để Admin chấm lại từ đầu
+
+                // LỖI 4 ĐÃ SỬA: Nếu update thành công thì trả về ID bản nháp, thất bại trả về -1
+                return _diaDiemDAL.CapNhatDiaDiem(dd) ? dd.MaDD : -1;
+            }
         }
+
+        // Chức năng Chủ quán chủ động hủy/xóa bỏ vĩnh viễn bản sao nháp khi không muốn sửa thông tin nữa
         public bool HuyYeuCauCapNhat(int maDD, int maTK)
         {
+            // Forward chuyển tiếp tham số an toàn xuống tầng DAL xử lý lệnh DELETE bản nháp
             return _diaDiemDAL.HuyYeuCauCapNhat(maDD, maTK);
         }
+
         public bool CapNhatTrangThaiNhanh(int maDD, string trangThaiMoi)
         {
             return _diaDiemDAL.CapNhatTrangThaiNhanh(maDD, trangThaiMoi);

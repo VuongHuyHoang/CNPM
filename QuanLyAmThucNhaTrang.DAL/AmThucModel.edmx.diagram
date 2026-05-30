@@ -26,6 +26,7 @@
         <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_YeuThich_DiaDiem" ManuallyRouted="false" />
         <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_PhanHoi_TaiKhoan" ManuallyRouted="false" />
         <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_YeuThich_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

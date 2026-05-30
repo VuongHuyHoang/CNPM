@@ -42,6 +42,7 @@
     <Property Name="MaDM" Type="int" Nullable="false" />
     <Property Name="MaKV" Type="int" Nullable="false" />
     <Property Name="LyDoTuChoi" Type="nvarchar" MaxLength="500" />
+    <Property Name="MaDD_Goc" Type="int" />
   </EntityType>
   <EntityType Name="HINHANH">
     <Key>
@@ -151,6 +152,18 @@
       </Principal>
       <Dependent Role="DIADIEM">
         <PropertyRef Name="MaDM" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_DiaDiem_DiaDiemGoc">
+    <End Role="DIADIEM" Type="Self.DIADIEM" Multiplicity="0..1" />
+    <End Role="DIADIEM1" Type="Self.DIADIEM" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="DIADIEM">
+        <PropertyRef Name="MaDD" />
+      </Principal>
+      <Dependent Role="DIADIEM1">
+        <PropertyRef Name="MaDD_Goc" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -303,6 +316,10 @@
     <AssociationSet Name="FK_DiaDiem_DanhMuc" Association="Self.FK_DiaDiem_DanhMuc">
       <End Role="DANHMUC" EntitySet="DANHMUC" />
       <End Role="DIADIEM" EntitySet="DIADIEM" />
+    </AssociationSet>
+    <AssociationSet Name="FK_DiaDiem_DiaDiemGoc" Association="Self.FK_DiaDiem_DiaDiemGoc">
+      <End Role="DIADIEM" EntitySet="DIADIEM" />
+      <End Role="DIADIEM1" EntitySet="DIADIEM" />
     </AssociationSet>
     <AssociationSet Name="FK_DiaDiem_KhuVuc" Association="Self.FK_DiaDiem_KhuVuc">
       <End Role="KHUVUC" EntitySet="KHUVUC" />

@@ -21,6 +21,7 @@ namespace QuanLyAmThucNhaTrang.DAL
             this.HINHANH = new HashSet<HINHANH>();
             this.KHUYENMAI = new HashSet<KHUYENMAI>();
             this.YEUTHICH = new HashSet<YEUTHICH>();
+            this.DIADIEM1 = new HashSet<DIADIEM>();
         }
     
         public int MaDD { get; set; }
@@ -40,6 +41,7 @@ namespace QuanLyAmThucNhaTrang.DAL
         public int MaDM { get; set; }
         public int MaKV { get; set; }
         public string LyDoTuChoi { get; set; }
+        public Nullable<int> MaDD_Goc { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DANHGIA> DANHGIA { get; set; }
@@ -52,5 +54,8 @@ namespace QuanLyAmThucNhaTrang.DAL
         public virtual ICollection<KHUYENMAI> KHUYENMAI { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<YEUTHICH> YEUTHICH { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DIADIEM> DIADIEM1 { get; set; }
+        public virtual DIADIEM DIADIEM2 { get; set; }
     }
 }

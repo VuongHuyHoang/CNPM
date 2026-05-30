@@ -136,15 +136,44 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
-        // 1. Lấy danh sách các địa điểm do một tài khoản chủ quán đăng ký
+        // NÂNG CẤP: Lấy danh sách địa điểm của chủ quán (Đã khử trùng lặp dòng do Draft Pattern)
         public List<DIADIEM> LayDanhSachTheoChuQuan(int maTK)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
             {
-                return db.DIADIEM.Include("DANHMUC") // Đảm bảo dùng đúng db.DIADIEM hoặc db.DIADIEMs theo cấu hình EF của bạn
-                         .Where(d => d.MaTK == maTK)
-                         .OrderByDescending(d => d.MaDD)
-                         .ToList();
+                // 1. Tải toàn bộ các bản ghi thuộc sở hữu của tài khoản này
+                var tatCaBanGhi = db.DIADIEM
+                                    .Include(d => d.DANHMUC)
+                                    .Where(d => d.MaTK == maTK)
+                                    .ToList();
+
+                // 2. KỸ THUẬT CỐT LÕI: Nhóm các bản ghi có chung gốc lại với nhau
+                // Nếu là bản ghi gốc (MaDD_Goc = null) -> Nhóm theo MaDD
+                // Nếu là bản ghi nháp (MaDD_Goc = X)    -> Nhóm theo MaDD_Goc (tức là X)
+                var nhomTheoGianHang = tatCaBanGhi.GroupBy(d => d.MaDD_Goc ?? d.MaDD);
+
+                var danhSachHienThi = new List<DIADIEM>();
+
+                foreach (var nhom in nhomTheoGianHang)
+                {
+                    // Tìm xem trong nhóm này có tồn tại Bản ghi nháp (ChoDuyetSua hoặc TuChoiSua) hay không
+                    var banNhapPending = nhom.FirstOrDefault(d => d.MaDD_Goc != null);
+
+                    if (banNhapPending != null)
+                    {
+                        // Nếu đang có chỉnh sửa, ưu tiên đưa bản nháp vào danh sách 
+                        // để giao diện hiển thị đúng trạng thái "Đang chờ duyệt sửa" hoặc "Bị từ chối"
+                        danhSachHienThi.Add(banNhapPending);
+                    }
+                    else
+                    {
+                        // Nếu không có chỉnh sửa nào, đưa bản ghi gốc duy nhất vào danh sách
+                        danhSachHienThi.Add(nhom.First());
+                    }
+                }
+
+                // Sắp xếp danh sách theo ID giảm dần để đưa các yêu cầu mới thao tác lên trên đầu
+                return danhSachHienThi.OrderByDescending(d => d.MaDD).ToList();
             }
         }
 
@@ -170,6 +199,8 @@ namespace QuanLyAmThucNhaTrang.DAL
                         dd.KinhDo = ddThayDoi.KinhDo;
                         dd.TrangThai = ddThayDoi.TrangThai; // Cập nhật lại trạng thái nếu có thay đổi nghiệp vụ
 
+                        dd.LyDoTuChoi = ddThayDoi.LyDoTuChoi;
+
                         db.SaveChanges();
                         return true;
                     }
@@ -179,17 +210,25 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
+        // Chức năng Hủy / Xóa bản nháp khi Chủ quán không muốn sửa nữa
         public bool HuyYeuCauCapNhat(int maDD, int maTK)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
             {
                 try
                 {
-                    var dd = db.DIADIEM.FirstOrDefault(d => d.MaDD == maDD && d.MaTK == maTK);
-                    // Chỉ xử lý nếu quán đang ở trạng thái chờ duyệt sửa
-                    if (dd != null && dd.TrangThai == "ChoDuyetSua")
+                    // Truy vấn tìm bản nháp. 
+                    // Bắt buộc phải check kèm MaTK để chống hack (người khác đổi ID trên URL để xóa trộm)
+                    var banNhap = db.DIADIEM.FirstOrDefault(d => d.MaDD == maDD && d.MaTK == maTK);
+
+                    // Thiết lập 3 chốt chặn bảo mật tuyệt đối:
+                    // 1. Phải tìm thấy dữ liệu
+                    // 2. BẮT BUỘC phải là Bản Nháp (MaDD_Goc có chứa ID của bản gốc) - Chống xóa nhầm quán đang bán
+                    // 3. Phải đang ở trạng thái Bị từ chối sửa (TuChoiSua)
+                    if (banNhap != null && banNhap.MaDD_Goc.HasValue && banNhap.TrangThai.Trim() == "TuChoiSua")
                     {
-                        dd.TrangThai = "DangHoatDong"; // Khôi phục lại trạng thái hiển thị trên Web
+                        // Nếu bản nháp có đính kèm hình ảnh riêng, hệ thống tự động xóa do đã có khóa ngoại Cascade
+                        db.DIADIEM.Remove(banNhap);
                         db.SaveChanges();
                         return true;
                     }

@@ -282,9 +282,9 @@
                         </ul>
 
                         <button id="btnYeuThich" onclick="thucHienYeuThich(@Model.MaDD)"
-                                class="btn w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2 @(ViewBag.DaLuu ? "btn-danger" : "btn-outline-danger")">
-                            <i id="iconYeuThich" class="bi @(ViewBag.DaLuu ? "bi-bookmark-heart-fill" : "bi-bookmark-heart")"></i>
-                            <span id="textYeuThich">@(ViewBag.DaLuu ? "Đã lưu vào Yêu thích" : "Lưu vào Yêu thích")</span>
+                                class="btn w-100 rounded-pill fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2 @(ViewBag.DaLuu == true ? "btn-danger" : "btn-outline-danger")">
+                            <i id="iconYeuThich" class="bi @(ViewBag.DaLuu == true ? "bi-bookmark-heart-fill" : "bi-bookmark-heart")"></i>
+                            <span id="textYeuThich">@(ViewBag.DaLuu == true ? "Đã lưu vào Yêu thích" : "Lưu vào Yêu thích")</span>
                         </button>
                     </div>
                 </div>

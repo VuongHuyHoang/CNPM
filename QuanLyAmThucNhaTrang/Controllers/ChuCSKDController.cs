@@ -139,7 +139,7 @@ namespace QuanLyAmThucNhaTrang.Controllers
             return View(diaDiem);
         }
 
-        // 5. XỬ LÝ LƯU THÔNG TIN SỬA ĐỔI (POST)
+        // 5. XỬ LÝ LƯU THÔNG TIN SỬA ĐỔI (POST) - CHUẨN HÓA DRAFT PATTERN
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
@@ -147,54 +147,71 @@ namespace QuanLyAmThucNhaTrang.Controllers
         {
             if (Session["LoaiTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD") return RedirectToAction("DangNhap", "TaiKhoan");
 
-            // 1. XỬ LÝ XÓA ẢNH CŨ (Nếu người dùng có tick chọn)
-            if (anhCanXoa != null && anhCanXoa.Any())
-            {
-                foreach (int maHA in anhCanXoa)
-                {
-                    // Tùy chọn nâng cao: Bạn có thể viết thêm code xóa file vật lý trong ổ cứng tại đây để dọn rác server
-                    _diaDiemBLL.XoaHinhAnh(maHA);
-                }
-            }
+            // Lấy trước dữ liệu quán cũ để tí nữa copy ảnh
+            var quanCu = _diaDiemBLL.LayChiTietDiaDiem(dd.MaDD);
 
-            if (_diaDiemBLL.CapNhatGianHang(dd))
+            // 1. Gọi BLL để tạo bản nháp và HỨNG LẤY ID BẢN NHÁP
+            int maDD_ThucTe = _diaDiemBLL.CapNhatGianHang(dd);
+
+            if (maDD_ThucTe > 0)
             {
+                // 2. LOGIC SAO CHÉP HÌNH ẢNH THÔNG MINH
+                if (maDD_ThucTe != dd.MaDD)
+                {
+                    // NẾU LÀ TẠO BẢN NHÁP MỚI: Copy toàn bộ ảnh từ quán cũ sang bản nháp, 
+                    // CHỪ những ảnh mà chủ quán vừa tick chọn xóa.
+                    if (quanCu != null && quanCu.HINHANH != null)
+                    {
+                        foreach (var anh in quanCu.HINHANH)
+                        {
+                            if (anhCanXoa == null || !anhCanXoa.Contains(anh.MaHA))
+                            {
+                                // Lưu ý: Copy ảnh sang ID mới (maDD_ThucTe)
+                                _diaDiemBLL.ThemHinhAnh(maDD_ThucTe, anh.DuongDan, anh.LoaiHinhAnh);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // NẾU ĐANG SỬA TRÊN 1 BẢN NHÁP CÓ SẴN: Thoải mái xóa thẳng ảnh
+                    if (anhCanXoa != null && anhCanXoa.Any())
+                    {
+                        foreach (int maHA in anhCanXoa) _diaDiemBLL.XoaHinhAnh(maHA);
+                    }
+                }
+
+                // 3. LƯU ẢNH MỚI TẢI LÊN (VÀO ĐÚNG ID BẢN NHÁP - maDD_ThucTe)
                 string duongDanThuMuc = Server.MapPath("~/images/uploads/");
                 if (!System.IO.Directory.Exists(duongDanThuMuc)) System.IO.Directory.CreateDirectory(duongDanThuMuc);
 
-                // 2. Xử lý lưu ảnh Không Gian
                 if (anhKhongGian != null)
                 {
                     foreach (var file in anhKhongGian.Where(f => f != null && f.ContentLength > 0))
                     {
                         string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
                         file.SaveAs(System.IO.Path.Combine(duongDanThuMuc, tenFile));
-                        // Gọi BLL lưu vào DB với loại "KhongGian"
-                        _diaDiemBLL.ThemHinhAnh(dd.MaDD, "/images/uploads/" + tenFile, "KhongGian");
+                        _diaDiemBLL.ThemHinhAnh(maDD_ThucTe, "/images/uploads/" + tenFile, "KhongGian");
                     }
                 }
 
-                // 3. Xử lý lưu ảnh Thực Đơn
                 if (anhThucDon != null)
                 {
                     foreach (var file in anhThucDon.Where(f => f != null && f.ContentLength > 0))
                     {
                         string tenFile = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
                         file.SaveAs(System.IO.Path.Combine(duongDanThuMuc, tenFile));
-                        // Gọi BLL lưu vào DB với loại "ThucDon"
-                        _diaDiemBLL.ThemHinhAnh(dd.MaDD, "/images/uploads/" + tenFile, "ThucDon");
+                        _diaDiemBLL.ThemHinhAnh(maDD_ThucTe, "/images/uploads/" + tenFile, "ThucDon");
                     }
                 }
-                TempData["Success"] = "Cập nhật thông tin gian hàng thành công! Quán đang chờ kiểm duyệt lại.";
+
+                TempData["Success"] = "Đã cập nhật thông tin và hình ảnh! Quán đang chờ Admin kiểm duyệt.";
                 return RedirectToAction("QuanLyGianHang");
             }
 
             ViewBag.Error = "Cập nhật thất bại. Vui lòng kiểm tra dữ liệu.";
-            ViewBag.MaDM = new SelectList(_diaDiemBLL.LayTatCaDanhMuc(), "MaDM", "TenDM", dd.MaDM);
-            ViewBag.MaKV = new SelectList(_diaDiemBLL.LayTatCaKhuVuc(), "MaKV", "TenKV", dd.MaKV);
             return View(dd);
         }
-
         public ActionResult TrangCaNhan()
         {
             if (Session["LoaiTK"] == null || Session["LoaiTK"].ToString() != "ChuCSKD") return RedirectToAction("DangNhap", "TaiKhoan");

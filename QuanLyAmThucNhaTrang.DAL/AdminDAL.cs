@@ -24,24 +24,74 @@ namespace QuanLyAmThucNhaTrang.DAL
             }
         }
 
-        // 2. Cập nhật trạng thái của địa điểm (Duyệt hoặc Từ chối)
-        public bool CapNhatTrangThaiDiaDiem(int maDD, string trangThaiMoi)
+        // 2. Phê duyệt địa điểm (Đã nâng cấp chuẩn kiến trúc Bản sao dữ liệu - Draft Pattern)
+        public bool PheDuyetDiaDiem(int maDD)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
             {
-                try
+                // Dùng Transaction để đảm bảo: Nếu copy lỗi thì không xóa nháp
+                using (var transaction = db.Database.BeginTransaction())
                 {
-                    var dd = db.DIADIEM.Find(maDD);
-                    if (dd != null)
+                    try
                     {
-                        dd.TrangThai = trangThaiMoi;
-                        dd.LyDoTuChoi = null; // Xóa sạch án tích cũ nếu có
-                        db.SaveChanges();
+                        // 1. Tìm bản nháp
+                        var banNhap = db.DIADIEM.Include("HINHANH").FirstOrDefault(d => d.MaDD == maDD);
+                        if (banNhap == null) return false;
+
+                        // 2. Nếu là duyệt SỬA (có MaDD_Goc)
+                        if (banNhap.MaDD_Goc.HasValue)
+                        {
+                            var quanGoc = db.DIADIEM.Find(banNhap.MaDD_Goc.Value);
+                            if (quanGoc != null)
+                            {
+                                // Cập nhật thông tin từ bản nháp sang bản gốc
+                                quanGoc.TenDD = banNhap.TenDD;
+                                quanGoc.DiaChiChiTiet = banNhap.DiaChiChiTiet;
+                                quanGoc.SDT = banNhap.SDT;
+                                quanGoc.GioMoCua = banNhap.GioMoCua;
+                                quanGoc.GioDongCua = banNhap.GioDongCua;
+                                quanGoc.MaDM = banNhap.MaDM;
+                                quanGoc.MaKV = banNhap.MaKV;
+                                quanGoc.ViDo = banNhap.ViDo;
+                                quanGoc.KinhDo = banNhap.KinhDo;
+                                quanGoc.MoTa = banNhap.MoTa;
+                                quanGoc.TrangThai = "DangHoatDong";
+
+                                // Xử lý ảnh: Xóa ảnh cũ của bản gốc, copy ảnh từ bản nháp sang
+                                var anhCu = db.HINHANH.Where(a => a.MaDD == quanGoc.MaDD).ToList();
+                                db.HINHANH.RemoveRange(anhCu);
+
+                                foreach (var anhNhap in banNhap.HINHANH)
+                                {
+                                    db.HINHANH.Add(new HINHANH
+                                    {
+                                        MaDD = quanGoc.MaDD,
+                                        DuongDan = anhNhap.DuongDan,
+                                        LoaiHinhAnh = anhNhap.LoaiHinhAnh
+                                    });
+                                }
+                            }
+                            // Xóa bản nháp sau khi đã cập nhật xong bản gốc
+                            db.HINHANH.RemoveRange(banNhap.HINHANH);
+                            db.DIADIEM.Remove(banNhap);
+                        }
+                        else
+                        {
+                            // Nếu là duyệt đăng ký mới (không có MaDD_Goc)
+                            banNhap.TrangThai = "DangHoatDong";
+                        }
+
+                        db.SaveChanges(); // Lưu tất cả thay đổi cùng lúc
+                        transaction.Commit(); // Chốt giao dịch
                         return true;
                     }
-                    return false;
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback(); // Quay lại trạng thái cũ nếu có lỗi
+                        System.Diagnostics.Debug.WriteLine("Lỗi phê duyệt: " + ex.Message);
+                        return false;
+                    }
                 }
-                catch { return false; }
             }
         }
 

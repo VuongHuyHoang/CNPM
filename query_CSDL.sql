@@ -85,6 +85,7 @@ CREATE TABLE DIADIEM (
     SoLuotDanhGia   INT             NOT NULL DEFAULT 0,
     NgayDangKy      DATE            NOT NULL DEFAULT GETDATE(),
 	LyDoTuChoi NVARCHAR(500) NULL,
+	MaDD_Goc INT NULL,
     MaTK            INT             NOT NULL,        -- FK → TAIKHOAN (chủ quán)
     MaDM            INT             NOT NULL,        -- FK → DANHMUC
     MaKV            INT             NOT NULL,        -- FK → KHUVUC
@@ -94,9 +95,11 @@ CREATE TABLE DIADIEM (
     CONSTRAINT CK_DiaDiem_SoLuot        CHECK (SoLuotDanhGia >= 0),
     CONSTRAINT FK_DiaDiem_TaiKhoan      FOREIGN KEY (MaTK) REFERENCES TAIKHOAN(MaTK),
     CONSTRAINT FK_DiaDiem_DanhMuc       FOREIGN KEY (MaDM) REFERENCES DANHMUC(MaDM),
-    CONSTRAINT FK_DiaDiem_KhuVuc        FOREIGN KEY (MaKV) REFERENCES KHUVUC(MaKV)
+    CONSTRAINT FK_DiaDiem_KhuVuc        FOREIGN KEY (MaKV) REFERENCES KHUVUC(MaKV),
+	CONSTRAINT FK_DiaDiem_DiaDiemGoc    FOREIGN KEY (MaDD_Goc) REFERENCES DIADIEM(MaDD)
 );
 GO
+
  
 -- -----------------------------------------------
 -- 5. Bảng DANHGIA

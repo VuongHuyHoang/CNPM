@@ -21,7 +21,7 @@ namespace QuanLyAmThucNhaTrang.Controllers
                                          .Include(d => d.HINHANH)
                                          .Where(d => d.TrangThai == "DangHoatDong")
                                          .OrderByDescending(d => d.DiemDanhGiaTB)
-                                         .Take(3)
+                                         .Take(6)
                                          .ToList();
 
                 return View(dsNoiBat);

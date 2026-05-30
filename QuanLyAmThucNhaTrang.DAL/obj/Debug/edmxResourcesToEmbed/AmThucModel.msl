@@ -27,6 +27,7 @@
     <EntitySetMapping Name="DIADIEM">
       <EntityTypeMapping TypeName="QuanLyAmThucNhaTrangModel.DIADIEM">
         <MappingFragment StoreEntitySet="DIADIEM">
+          <ScalarProperty Name="MaDD_Goc" ColumnName="MaDD_Goc" />
           <ScalarProperty Name="LyDoTuChoi" ColumnName="LyDoTuChoi" />
           <ScalarProperty Name="MaDD" ColumnName="MaDD" />
           <ScalarProperty Name="TenDD" ColumnName="TenDD" />

@@ -97,34 +97,28 @@ namespace QuanLyAmThucNhaTrang.Controllers
         // GET: DiaDiem/ChiTiet/5
         public ActionResult ChiTiet(int id)
         {
-            var diaDiem = _diaDiemBLL.LayChiTietDiaDiem(id);
+            // 1. Lấy thông tin địa điểm từ BLL
+            var dd = _diaDiemBLL.LayChiTietDiaDiem(id);
+            if (dd == null) return HttpNotFound("Không tìm thấy dữ liệu.");
 
-            // 1. Gộp điều kiện kiểm tra tồn tại
-            if (diaDiem == null)
-            {
-                return HttpNotFound("Không tìm thấy địa điểm ẩm thực này.");
-            }
+            // 2. KHỞI TẠO BỘ NHẬN DIỆN QUYỀN (VIP PASS)
+            // Kiểm tra xem người đang truy cập có phải là Admin không?
+            bool isAdmin = Session["LoaiTK"] != null && Session["LoaiTK"].ToString() == "QuanTriVien";
 
-            // 2. CHỐT CHẶN BẢO MẬT TRẠNG THÁI
-            // Chỉ chặn các đơn đăng ký mới (ChoDuyet) và bị từ chối hẳn (TuChoi)
-            // Các quán sửa thông tin (ChoDuyetSua, TuChoiSua) hay nghỉ lễ (TamNgung) vẫn được đi qua
-            string trangThai = diaDiem.TrangThai.Trim();
-            if (trangThai == "ChoDuyet" || trangThai == "TuChoi")
+            // Kiểm tra xem người đang truy cập có phải là Chủ của chính quán này không?
+            bool isOwner = Session["MaTK"] != null && (int)Session["MaTK"] == dd.MaTK;
+
+            // 3. LOGIC CHẶN HIỂN THỊ
+            // Nếu quán đang không hoạt động bình thường, và người xem lại KHÔNG PHẢI admin, CŨNG KHÔNG PHẢI chủ quán
+            // -> Lúc này mới chắc chắn là Khách vãng lai -> Chặn lại báo lỗi 404
+            if (dd.TrangThai.Trim() != "DangHoatDong" && dd.TrangThai.Trim() != "TamNgung" && !isAdmin && !isOwner)
             {
                 return HttpNotFound("Cơ sở này hiện không hoạt động hoặc đang chờ cấp phép.");
             }
 
-            // 3. Xử lý chức năng Yêu thích (Giữ nguyên của bạn)
-            bool daLuu = false;
-            if (Session["MaTK"] != null)
-            {
-                int maTK = (int)Session["MaTK"];
-                daLuu = _yeuThichBLL.KiemTraTrangThaiLuu(maTK, id);
-            }
-            ViewBag.DaLuu = daLuu;
-            ViewBag.KhuyenMaiList = _khuyenMaiBLL.LayKhuyenMaiHieuLuc(id);
-
-            return View(diaDiem);
+            // Nếu qua được ải trên (tức là quán đang Hoạt động, HOẶC người đang xem là Admin/Chủ quán)
+            // -> Lấy thêm dữ liệu liên quan (như bình luận, đánh giá...) và hiển thị View
+            return View(dd);
         }
 
         // [POST] Xử lý đăng ký quán mới - Nhận nhiều file ảnh cùng lúc

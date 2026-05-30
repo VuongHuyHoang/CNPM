@@ -16,11 +16,11 @@ namespace QuanLyAmThucNhaTrang.BLL
             return _adminDAL.LayDanhSachChoDuyet();
         }
 
-        // Nghiệp vụ Phê Duyệt
+        // Nghiệp vụ Phê Duyệt (Đã chuẩn hóa theo Draft Pattern)
         public bool PheDuyetDiaDiem(int maDD)
         {
-            // Cập nhật trạng thái thành 'DangHoatDong'
-            return _adminDAL.CapNhatTrangThaiDiaDiem(maDD, "DangHoatDong");
+            // Chỉ cần truyền đúng Mã địa điểm, DAL sẽ tự động lo việc Merge dữ liệu và cập nhật trạng thái
+            return _adminDAL.PheDuyetDiaDiem(maDD);
         }
 
         public bool TuChoiDiaDiem(int maDD, string lyDo)

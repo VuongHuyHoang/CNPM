@@ -53,6 +53,9 @@
     <NavigationProperty Name="KHUYENMAI" Relationship="Self.FK_KhuyenMai_DiaDiem" FromRole="DIADIEM" ToRole="KHUYENMAI" />
     <NavigationProperty Name="YEUTHICH" Relationship="Self.FK_YeuThich_DiaDiem" FromRole="DIADIEM" ToRole="YEUTHICH" />
     <Property Name="LyDoTuChoi" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Name="MaDD_Goc" Type="Int32" />
+    <NavigationProperty Name="DIADIEM1" Relationship="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc" FromRole="DIADIEM" ToRole="DIADIEM1" />
+    <NavigationProperty Name="DIADIEM2" Relationship="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc" FromRole="DIADIEM1" ToRole="DIADIEM" />
   </EntityType>
   <EntityType Name="HINHANH">
     <Key>
@@ -357,6 +360,10 @@
       <Parameter Name="new_diagramname" Mode="In" Type="String" />
     </FunctionImport>
     <FunctionImport Name="sp_upgraddiagrams" />
+    <AssociationSet Name="FK_DiaDiem_DiaDiemGoc" Association="QuanLyAmThucNhaTrangModel.FK_DiaDiem_DiaDiemGoc">
+      <End Role="DIADIEM" EntitySet="DIADIEM" />
+      <End Role="DIADIEM1" EntitySet="DIADIEM" />
+    </AssociationSet>
   </EntityContainer>
   <ComplexType Name="sp_helpdiagramdefinition_Result">
     <Property Type="Int32" Name="version" Nullable="true" />
@@ -369,4 +376,16 @@
     <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
     <Property Type="Int32" Name="OwnerID" Nullable="false" />
   </ComplexType>
+  <Association Name="FK_DiaDiem_DiaDiemGoc">
+    <End Type="QuanLyAmThucNhaTrangModel.DIADIEM" Role="DIADIEM" Multiplicity="0..1" />
+    <End Type="QuanLyAmThucNhaTrangModel.DIADIEM" Role="DIADIEM1" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="DIADIEM">
+        <PropertyRef Name="MaDD" />
+      </Principal>
+      <Dependent Role="DIADIEM1">
+        <PropertyRef Name="MaDD_Goc" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema>

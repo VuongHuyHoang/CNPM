@@ -42,8 +42,25 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="ps-4 text-muted fw-bold">@stt</td>
-                                <td>
+                                <td class="ps-4 text-muted fw-bold align-middle">@stt</td>
+                                <td class="align-middle">
+
+                                    <div class="mb-1 d-flex align-items-center gap-2">
+                                        @if (item.TrangThai.Trim() == "ChoDuyetSua")
+                                        {
+                                            <span class="badge bg-info text-dark border border-info border-opacity-25 rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
+                                                <i class="bi bi-pencil-square me-1"></i> Xin sửa thông tin
+                                            </span>
+                                            <span class="text-muted fst-italic" style="font-size: 0.75rem;">(Bản nháp từ ID gốc: #@item.MaDD_Goc)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary bg-gradient text-white border rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
+                                                <i class="bi bi-shop me-1"></i> Đăng ký mới
+                                            </span>
+                                        }
+                                    </div>
+
                                     <h6 class="fw-bold text-body m-0 fs-5">@item.TenDD</h6>
                                     <small class="text-muted d-block mb-2"><i class="bi bi-geo-alt me-1"></i>@item.DiaChiChiTiet</small>
 
@@ -66,30 +83,34 @@
                                         <small class="text-danger d-block mt-1"><i class="bi bi-image-alt"></i> Không có ảnh xác minh!</small>
                                     }
                                 </td>
-                                <td>
+
+                                <td class="align-middle">
                                     <span class="d-block fw-semibold text-primary">@item.TAIKHOAN.HoTen</span>
                                     <small class="text-muted">SĐT: @item.SDT</small>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">@item.DANHMUC.TenDM</span></td>
+                                <td class="align-middle"><span class="badge bg-light text-dark border">@item.DANHMUC.TenDM</span></td>
 
-                                <td class="text-muted small">
-                                    @(item.NgayDangKy.Year > 2000 ? item.NgayDangKy.ToString("dd/MM/yyyy") : "Vừa cập nhật")
+                                <td class="text-muted small align-middle">
+                                    @(item.NgayDangKy.Year > 2000 ? item.NgayDangKy.ToString("dd/MM/yyyy HH:mm") : "Vừa cập nhật")
                                 </td>
 
-                                <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-2">
-                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill" target="_blank" title="Xem chi tiết nội dung quán">
-                                            <i class="bi bi-eye"></i> Xem trước
+                                <td class="text-end pe-4 align-middle">
+                                    <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+
+                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill" target="_blank" title="Xem chi tiết nội dung">
+                                            <i class="bi bi-eye"></i> @(item.TrangThai.Trim() == "ChoDuyetSua" ? "Xem bản nháp" : "Xem trước")
                                         </a>
 
-                                        <form action="@Url.Action("PheDuyet", "Admin")" method="POST" onsubmit="return confirm('Bạn xác nhận PHÊ DUYỆT quán này?');">
+                                        <form action="@Url.Action("PheDuyet", "Admin")" method="POST" onsubmit="return confirm('Bạn xác nhận PHÊ DUYỆT yêu cầu này?');" class="m-0">
                                             <input type="hidden" name="maDD" value="@item.MaDD" />
-                                            <button type="submit" class="btn btn-success btn-sm rounded-pill fw-bold">
+                                            <button type="submit" class="btn btn-success btn-sm rounded-pill fw-bold shadow-sm">
                                                 <i class="bi bi-check-lg me-1"></i> Duyệt
                                             </button>
                                         </form>
 
-                                        <button type="button" class="btn btn-danger btn-sm rounded-pill fw-bold" onclick="moModalTuChoi(@item.MaDD, '@item.TenDD')" data-bs-toggle="modal" data-bs-target="#modalTuChoi">
+                                        <button type="button" class="btn btn-danger btn-sm rounded-pill fw-bold shadow-sm"
+                                                onclick="moModalTuChoi(@item.MaDD, '@item.TenDD', '@(item.TrangThai.Trim() == "ChoDuyetSua" ? "Bản nháp cập nhật" : "Đăng ký mới")')"
+                                                data-bs-toggle="modal" data-bs-target="#modalTuChoi">
                                             <i class="bi bi-x-lg me-1"></i> Từ chối
                                         </button>
                                     </div>
@@ -133,9 +154,11 @@
 </div>
 
 <script>
-    // Script để truyền dữ liệu mã quán và tên quán vào Modal khi bấm nút Từ chối
-    function moModalTuChoi(maDD, tenDD) {
+    // Script để truyền dữ liệu mã quán, tên quán và Loại Đơn vào Modal khi bấm nút Từ chối
+    function moModalTuChoi(maDD, tenDD, loaiDon) {
         document.getElementById('tuchoi_MaDD').value = maDD;
-        document.getElementById('tuchoi_TenQuan').innerText = tenDD;
+
+        // Hiện thông báo chi tiết: "Từ chối Bún cá Hà Dứa (Bản nháp cập nhật)"
+        document.getElementById('tuchoi_TenQuan').innerText = tenDD + ' [' + loaiDon + ']';
     }
 </script>
