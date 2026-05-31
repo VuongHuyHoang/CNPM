@@ -75,6 +75,33 @@ namespace QuanLyAmThucNhaTrang.Controllers
             // 3. Xong xuôi thì load lại trang chi tiết đó
             return RedirectToAction("ChiTiet", new { id = MaDD });
         }
+        [HttpPost]
+        public ActionResult XoaDanhGia(int maDG, int maDD)
+        {
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
+            int maTK = (int)Session["MaTK"];
+
+            if (_danhGiaBLL.XoaDanhGia(maDG, maTK))
+                TempData["Success"] = "Đã xóa đánh giá của bạn.";
+            else
+                TempData["Error"] = "Có lỗi xảy ra, không thể xóa đánh giá.";
+
+            return RedirectToAction("ChiTiet", "DiaDiem", new { id = maDD });
+        }
+
+        [HttpPost]
+        public ActionResult SuaDanhGia(int maDG, int maDD, int SoSao, string NoiDung)
+        {
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
+            int maTK = (int)Session["MaTK"];
+
+            if (_danhGiaBLL.SuaDanhGia(maDG, SoSao, NoiDung, maTK))
+                TempData["Success"] = "Đã cập nhật lại đánh giá của bạn!";
+            else
+                TempData["Error"] = "Có lỗi xảy ra khi sửa đánh giá.";
+
+            return RedirectToAction("ChiTiet", "DiaDiem", new { id = maDD });
+        }
 
         // GET: DiaDiem/TimKiem
         public ActionResult TimKiem(string tuKhoa, int? maDM, int? maKV)
@@ -107,6 +134,9 @@ namespace QuanLyAmThucNhaTrang.Controllers
 
             // Kiểm tra xem người đang truy cập có phải là Chủ của chính quán này không?
             bool isOwner = Session["MaTK"] != null && (int)Session["MaTK"] == dd.MaTK;
+            ViewBag.KhuyenMaiList = _khuyenMaiBLL.LayKhuyenMaiTheoDiaDiem(id);
+            var testKM = ViewBag.KhuyenMaiList as List<QuanLyAmThucNhaTrang.DAL.KHUYENMAI>;
+            System.Diagnostics.Debug.WriteLine("====> SỐ LƯỢNG KHUYẾN MÃI LẤY ĐƯỢC LÀ: " + testKM.Count);
 
             // 3. LOGIC CHẶN HIỂN THỊ
             // Nếu quán đang không hoạt động bình thường, và người xem lại KHÔNG PHẢI admin, CŨNG KHÔNG PHẢI chủ quán

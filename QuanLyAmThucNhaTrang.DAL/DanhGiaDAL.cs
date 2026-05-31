@@ -35,6 +35,51 @@ namespace QuanLyAmThucNhaTrang.DAL
                 }
             }
         }
+        // 1. Hàm Xóa đánh giá (Kèm kiểm tra bảo mật đúng người viết mới được xóa)
+        public bool XoaDanhGia(int maDG, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dg = db.DANHGIA.FirstOrDefault(d => d.MaDG == maDG && d.MaTK == maTK);
+                    if (dg != null)
+                    {
+                        // Xóa tất cả các phản hồi của chủ quán (nếu có) bám theo đánh giá này
+                        var cacPhanHoi = db.PHANHOI.Where(p => p.MaDG == maDG).ToList();
+                        if (cacPhanHoi.Count > 0) db.PHANHOI.RemoveRange(cacPhanHoi);
+
+                        db.DANHGIA.Remove(dg);
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
+        // 2. Hàm Cập nhật đánh giá
+        public bool SuaDanhGia(int maDG, int soSaoMoi, string noiDungMoi, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var dg = db.DANHGIA.FirstOrDefault(d => d.MaDG == maDG && d.MaTK == maTK);
+                    if (dg != null)
+                    {
+                        dg.SoSao = soSaoMoi;
+                        dg.NoiDung = noiDungMoi;
+                        dg.NgayDanhGia = DateTime.Now; // Cập nhật lại ngày giờ sửa
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
 
         // 3. Tự động tính toán lại Điểm Trung Bình & Số Lượt cho bảng DIADIEM
         public void CapNhatDiemTrungBinh(int maDD)

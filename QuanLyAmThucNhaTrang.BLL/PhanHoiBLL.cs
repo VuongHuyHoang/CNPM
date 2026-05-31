@@ -32,5 +32,14 @@ namespace QuanLyAmThucNhaTrang.BLL
             }
             return "Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại.";
         }
+        public bool XoaPhanHoi(int maPH, int maTK)
+        {
+            return _phanHoiDAL.XoaPhanHoi(maPH, maTK);
+        }
+
+        public bool SuaPhanHoi(int maPH, string noiDungMoi, int maTK)
+        {
+            return _phanHoiDAL.SuaPhanHoi(maPH, noiDungMoi, maTK);
+        }
     }
 }

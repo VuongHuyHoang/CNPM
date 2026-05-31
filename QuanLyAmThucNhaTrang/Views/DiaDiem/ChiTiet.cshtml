@@ -81,7 +81,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="position-absolute top-50 start-0 translate-middle bg-white rounded-circle" style="width: 24px; height: 24px; box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);"></div>
+                                    <div class="position-absolute top-50 start-0 translate-middle rounded-circle" style="width: 24px; height: 24px; box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);"></div>
                                 </div>
                             </div>
                         }
@@ -216,14 +216,42 @@
                 {
                     foreach (var dg in Model.DANHGIA.OrderByDescending(d => d.NgayDanhGia))
                     {
-                        <div class="d-flex gap-3 mb-4 p-3 rounded-4 border-0">
+                        <div class="d-flex gap-3 mb-4 p-3 rounded-4 border-0 shadow-sm">
                             <div class="bg-secondary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 48px; height: 48px; flex-shrink: 0;">
                                 @dg.TAIKHOAN.HoTen.Substring(0, 1).ToUpper()
                             </div>
-                            <div>
+
+                            <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <h6 class="fw-bold m-0">@dg.TAIKHOAN.HoTen</h6>
-                                    <small class="text-muted">@dg.NgayDanhGia.ToString("dd/MM/yyyy")</small>
+                                    <div>
+                                        <h6 class="fw-bold m-0 d-inline-block">@dg.TAIKHOAN.HoTen</h6>
+                                        <small class="text-muted ms-2">@dg.NgayDanhGia.ToString("dd/MM/yyyy")</small>
+                                    </div>
+
+                                    @if (Session["MaTK"] != null && (int)Session["MaTK"] == dg.MaTK)
+                                    {
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light border-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                <li>
+                                                    <button class="dropdown-item small" onclick="moModalSuaDG(@dg.MaDG, @dg.SoSao, '@dg.NoiDung')" data-bs-toggle="modal" data-bs-target="#editReviewModal">
+                                                        <i class="bi bi-pencil me-2 text-primary"></i> Sửa đánh giá
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <form action="@Url.Action("XoaDanhGia", "DiaDiem")" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
+                                                        <input type="hidden" name="maDG" value="@dg.MaDG" />
+                                                        <input type="hidden" name="maDD" value="@Model.MaDD" />
+                                                        <button type="submit" class="dropdown-item small text-danger">
+                                                            <i class="bi bi-trash3 me-2"></i> Xóa đánh giá
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    }
                                 </div>
                                 <div class="text-warning small mb-2">
                                     @for (int i = 0; i < dg.SoSao; i++)
@@ -231,7 +259,26 @@
                                     @for (int i = dg.SoSao; i < 5; i++)
                                     {<i class="bi bi-star text-muted opacity-25"></i>}
                                 </div>
+
                                 <p class="text-secondary small m-0" style="line-height: 1.6;">@dg.NoiDung</p>
+
+                                @if (dg.PHANHOI != null && dg.PHANHOI.Any())
+                                {
+                                    var phanHoi = dg.PHANHOI.FirstOrDefault();
+                                    <div class="mt-3 p-3 bg-light rounded-3 border-start border-3 border-primary position-relative">
+                                        <div class="position-absolute top-0 start-0 translate-middle-x ms-3" style="margin-top: -6px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--bs-primary);"></div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="fw-bold text-primary m-0" style="font-size: 0.85rem;">
+                                                <i class="bi bi-shop me-1"></i> Phản hồi từ @Model.TenDD
+                                            </h6>
+                                            <small class="text-muted" style="font-size: 0.75rem;">
+                                                @(phanHoi.NgayPhanHoi.ToString("dd/MM/yyyy"))
+                                            </small>
+                                        </div>
+                                        <p class="text-body small m-0" style="line-height: 1.5; text-align: justify;">@phanHoi.NoiDung</p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -377,6 +424,52 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="editReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-light border-0 py-3">
+                <h6 class="modal-title fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa đánh giá</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="@Url.Action("SuaDanhGia", "DiaDiem")" method="POST">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="maDG" id="edit_MaDG" />
+                    <input type="hidden" name="maDD" value="@Model.MaDD" />
+
+                    <div class="text-center mb-4">
+                        <label class="fw-bold text-secondary mb-2 d-block">Bạn muốn đổi thành mấy sao?</label>
+                        <div class="star-rating-group" id="edit_StarGroup">
+                            <input type="radio" id="edit_star5" name="SoSao" value="5" required />
+                            <label for="edit_star5"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="edit_star4" name="SoSao" value="4" />
+                            <label for="edit_star4"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="edit_star3" name="SoSao" value="3" />
+                            <label for="edit_star3"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="edit_star2" name="SoSao" value="2" />
+                            <label for="edit_star2"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="edit_star1" name="SoSao" value="1" />
+                            <label for="edit_star1"><i class="bi bi-star-fill"></i></label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-secondary small mb-2">Cập nhật nội dung trải nghiệm</label>
+                        <textarea name="NoiDung" id="edit_NoiDung" class="form-control bg-light border-0 rounded-3" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill fw-semibold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill fw-bold shadow-sm px-4">Lưu cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <style>
     /* CSS TRICK: Đảo ngược chiều chọn sao để làm hiệu ứng sáng từ trái qua phải */
@@ -492,4 +585,20 @@ http://googleusercontent.com/map_location_reference/1
         // Tự động mở popup khi tải trang
         setTimeout(function() { marker.openPopup(); }, 500);
     });
+</script>
+
+
+<script>
+    // Hàm đẩy dữ liệu cũ vào Modal khi bấm nút Sửa
+    function moModalSuaDG(maDG, soSaoCu, noiDungCu) {
+        document.getElementById('edit_MaDG').value = maDG;
+        document.getElementById('edit_NoiDung').value = noiDungCu;
+
+        // Check vào đúng số sao cũ mà khách từng đánh giá
+        let radioId = 'edit_star' + soSaoCu;
+        let radioBtn = document.getElementById(radioId);
+        if (radioBtn) {
+            radioBtn.checked = true;
+        }
+    }
 </script>

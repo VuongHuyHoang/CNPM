@@ -40,6 +40,19 @@ namespace QuanLyAmThucNhaTrang.BLL
 
             return "Có lỗi xảy ra khi lưu đánh giá. Vui lòng thử lại.";
         }
+        // Nằm trong DiaDiemBLL.cs
+
+        // 1. Cầu nối gọi lệnh Xóa đánh giá
+        public bool XoaDanhGia(int maDG, int maTK)
+        {
+            return _danhGiaDAL.XoaDanhGia(maDG, maTK);
+        }
+
+        // 2. Cầu nối gọi lệnh Sửa đánh giá
+        public bool SuaDanhGia(int maDG, int soSaoMoi, string noiDungMoi, int maTK)
+        {
+            return _danhGiaDAL.SuaDanhGia(maDG, soSaoMoi, noiDungMoi, maTK);
+        }
 
         public List<DANHGIA> LayLichSuDanhGiaTheoUser(int maTK)
         {

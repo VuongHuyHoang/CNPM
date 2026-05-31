@@ -15,17 +15,15 @@ namespace QuanLyAmThucNhaTrang.BLL
         {
             return _kmDAL.LayDanhSachKhuyenMai(maTK);
         }
-
-        public string ThemKhuyenMai(KHUYENMAI km)
+        public List<KHUYENMAI> LayKhuyenMaiTheoDiaDiem(int maDD)
         {
-            // Kiểm tra quy định nghiệp vụ (QĐ7)
-            if (km.NgayBatDau > km.NgayKetThuc)
-                return "Lỗi: Ngày bắt đầu không được lớn hơn ngày kết thúc!";
+            return _kmDAL.LayKhuyenMaiTheoDiaDiem(maDD);
+        }
 
-            km.TrangThai = "ConHieuLuc";
-
-            if (_kmDAL.ThemKhuyenMai(km)) return "Success";
-            return "Có lỗi xảy ra khi thêm dữ liệu.";
+        // Mở file KhuyenMaiBLL.cs và sửa lại chữ 'string' thành 'bool'
+        public bool ThemKhuyenMai(KHUYENMAI km)
+        {
+            return _kmDAL.ThemKhuyenMai(km);
         }
 
         public bool XoaKhuyenMai(int maKM)

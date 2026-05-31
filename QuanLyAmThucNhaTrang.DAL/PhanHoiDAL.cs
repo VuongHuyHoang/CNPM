@@ -39,5 +39,46 @@ namespace QuanLyAmThucNhaTrang.DAL
                 catch { return false; }
             }
         }
+
+        // Xóa phản hồi (Kiểm tra thêm MaTK để chống hack)
+        public bool XoaPhanHoi(int maPH, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var ph = db.PHANHOI.FirstOrDefault(p => p.MaPH == maPH && p.MaTK == maTK);
+                    if (ph != null)
+                    {
+                        db.PHANHOI.Remove(ph);
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
+
+        // Sửa nội dung phản hồi
+        public bool SuaPhanHoi(int maPH, string noiDungMoi, int maTK)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                try
+                {
+                    var ph = db.PHANHOI.FirstOrDefault(p => p.MaPH == maPH && p.MaTK == maTK);
+                    if (ph != null)
+                    {
+                        ph.NoiDung = noiDungMoi;
+                        ph.NgayPhanHoi = DateTime.Now; // Cập nhật lại thời gian sửa mới nhất
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch { return false; }
+            }
+        }
     }
 }

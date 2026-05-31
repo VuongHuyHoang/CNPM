@@ -261,11 +261,24 @@ namespace QuanLyAmThucNhaTrang.Controllers
         [HttpPost]
         public ActionResult ThemKhuyenMai(KHUYENMAI km)
         {
-            string ketQua = _khuyenMaiBLL.ThemKhuyenMai(km);
-            if (ketQua == "Success") TempData["Success"] = "Đã tạo chương trình khuyến mãi mới!";
-            else TempData["Error"] = ketQua;
+            // Đảm bảo dữ liệu ngày tháng hợp lệ trước khi gọi BLL/DAL
+            if (km.NgayBatDau > km.NgayKetThuc)
+            {
+                TempData["Error"] = "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!";
+                return RedirectToAction("QuanLyGianHang", "ChuCSKD");
+            }
 
-            return RedirectToAction("KhuyenMai");
+            if (_khuyenMaiBLL.ThemKhuyenMai(km))
+            {
+                TempData["Success"] = "Đã thêm khuyến mãi thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Có lỗi xảy ra khi thêm khuyến mãi.";
+            }
+
+            // Quay về trang quản lý của chủ quán
+            return RedirectToAction("QuanLyGianHang", "ChuCSKD");
         }
 
         [HttpPost]
@@ -340,6 +353,33 @@ namespace QuanLyAmThucNhaTrang.Controllers
                 TempData["Error"] = "Không thể thực hiện yêu cầu này.";
             }
             return RedirectToAction("QuanLyGianHang", "ChuCSKD");
+        }
+        [HttpPost]
+        public ActionResult XoaPhanHoi(int maPH)
+        {
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
+            int maTK = (int)Session["MaTK"];
+
+            if (_phanHoiBLL.XoaPhanHoi(maPH, maTK))
+                TempData["Success"] = "Đã xóa phản hồi thành công!";
+            else
+                TempData["Error"] = "Có lỗi xảy ra. Phản hồi không tồn tại hoặc bạn không có quyền xóa.";
+
+            return RedirectToAction("PhanHoiDanhGia");
+        }
+
+        [HttpPost]
+        public ActionResult SuaPhanHoi(int maPH, string noiDungMoi)
+        {
+            if (Session["MaTK"] == null) return RedirectToAction("DangNhap", "TaiKhoan");
+            int maTK = (int)Session["MaTK"];
+
+            if (_phanHoiBLL.SuaPhanHoi(maPH, noiDungMoi, maTK))
+                TempData["Success"] = "Đã cập nhật nội dung phản hồi thành công!";
+            else
+                TempData["Error"] = "Có lỗi xảy ra khi sửa phản hồi.";
+
+            return RedirectToAction("PhanHoiDanhGia");
         }
     }
 }

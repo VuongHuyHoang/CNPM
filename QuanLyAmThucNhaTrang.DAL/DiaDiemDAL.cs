@@ -31,7 +31,9 @@ namespace QuanLyAmThucNhaTrang.DAL
                          .Include(d => d.DANHMUC) // Lấy thông tin phân loại
                          .Include(d => d.HINHANH) // Lấy danh sách toàn bộ ảnh của quán
                          .Include(d => d.KHUVUC) // Lấy thông tin khu vực để hiện bản đồ
-                                                 // Lấy danh sách đánh giá, đồng thời kéo theo thông tin của người đã viết đánh giá đó
+                         .Include("DANHGIA.TAIKHOAN") // Kéo theo người đánh giá
+                         .Include("DANHGIA.PHANHOI")
+                         // Lấy danh sách đánh giá, đồng thời kéo theo thông tin của người đã viết đánh giá đó
                          .Include(d => d.DANHGIA.Select(dg => dg.TAIKHOAN))
                          .FirstOrDefault(d => d.MaDD == maDD);
             }

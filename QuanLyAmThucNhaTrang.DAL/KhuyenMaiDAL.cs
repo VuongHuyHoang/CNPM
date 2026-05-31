@@ -21,13 +21,55 @@ namespace QuanLyAmThucNhaTrang.DAL
                          .ToList();
             }
         }
+        public List<KHUYENMAI> LayKhuyenMaiTheoDiaDiem(int maDD)
+        {
+            using (var db = new QuanLyAmThucNhaTrangEntities())
+            {
+                // Chỉ lấy những khuyến mãi thuộc quán này và CÒN HẠN SỬ DỤNG
+                return db.KHUYENMAI
+                         .Where(k => k.MaDD == maDD && k.NgayKetThuc >= DateTime.Now)
+                         .OrderByDescending(k => k.NgayBatDau) // Ưu tiên hiển thị KM mới nhất
+                         .ToList();
+            }
+        }
 
         public bool ThemKhuyenMai(KHUYENMAI km)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
             {
-                try { db.KHUYENMAI.Add(km); db.SaveChanges(); return true; }
-                catch { return false; }
+                try
+                {
+                    // 1. TÌM ĐỊA ĐIỂM MÀ CHỦ QUÁN ĐANG THAO TÁC
+                    var diaDiem = db.DIADIEM.FirstOrDefault(d => d.MaDD == km.MaDD);
+
+                    if (diaDiem != null)
+                    {
+                        // 2. CHỐT CHẶN CHUYỂN HƯỚNG DỮ LIỆU
+                        // Kiểm tra xem địa điểm này có phải là bản nháp không (có MaDD_Goc)
+                        if (diaDiem.MaDD_Goc.HasValue)
+                        {
+                            // Nếu là nháp -> Gắn khuyến mãi này cho bản GỐC đang chiếu ngoài trang chủ
+                            km.MaDD = diaDiem.MaDD_Goc.Value;
+                        }
+                        else
+                        {
+                            // Nếu không có MaDD_Goc -> Đây chính là bản gốc (hoặc quán mới tinh chưa duyệt)
+                            // -> Giữ nguyên km.MaDD
+                        }
+
+                        // 3. Thêm vào CSDL và lưu lại
+                        db.KHUYENMAI.Add(km);
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    // Ghi log lỗi ra nếu cần
+                    System.Diagnostics.Debug.WriteLine("Lỗi thêm Khuyến mãi: " + ex.Message);
+                    return false;
+                }
             }
         }
 
