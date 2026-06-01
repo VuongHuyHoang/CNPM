@@ -66,13 +66,13 @@
                     else
                     {
                         <div class="ms-5 mt-2 d-flex align-items-center gap-3">
-                            <button type="button" class="btn btn-light btn-sm rounded-pill fw-bold text-primary border shadow-sm px-4 py-2"
+                            <button type="button" class="btn btn-sm rounded-pill fw-bold text-primary border shadow-sm px-4 py-2"
                                     onclick="moModalGuiPH(@item.MaDG, '@item.TAIKHOAN.HoTen', '@item.DIADIEM.TenDD')"
                                     data-bs-toggle="modal" data-bs-target="#modalGuiPH">
                                 <i class="bi bi-reply-fill me-1"></i>Viết phản hồi
                             </button>
 
-                            <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 shadow-sm">
+                            <span class="badge text-secondary border rounded-pill px-3 py-2 shadow-sm">
                                 <i class="bi bi-geo-alt-fill text-danger me-1"></i> @item.DIADIEM.TenDD
                             </span>
                         </div>
@@ -83,7 +83,7 @@
     }
     else
     {
-        <div class="text-center py-5 border rounded-4 bg-light bg-opacity-10">
+        <div class="text-center py-5 border rounded-4 bg-opacity-10">
             <i class="bi bi-chat-square-heart text-muted display-3"></i>
             <h5 class="text-muted mt-3 fw-bold">Chưa có đánh giá nào</h5>
         </div>
@@ -107,7 +107,7 @@
             </div>
 
             <div class="modal-body p-4 pt-2">
-                <textarea name="NoiDung" class="form-control bg-light border-0 rounded-3 p-3" rows="4" placeholder="Nhập lời cảm ơn hoặc giải thích của bạn để khách hàng hiểu rõ hơn..." required></textarea>
+                <textarea name="NoiDung" class="form-control border-0 rounded-3 p-3" rows="4" placeholder="Nhập lời cảm ơn hoặc giải thích của bạn để khách hàng hiểu rõ hơn..." required></textarea>
             </div>
 
             <div class="modal-footer border-top-0 pt-0">
@@ -121,12 +121,12 @@
     <div class="modal-dialog modal-dialog-centered">
         <form action="@Url.Action("SuaPhanHoi", "ChuCSKD")" method="POST" class="modal-content rounded-4 border-0 shadow">
             <input type="hidden" name="maPH" id="input_MaPH_Sua" />
-            <div class="modal-header bg-light">
+            <div class="modal-header">
                 <h6 class="fw-bold m-0 text-primary"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa phản hồi</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <textarea name="noiDungMoi" id="input_NoiDung_Sua" class="form-control rounded-3 bg-light border-0 p-3" rows="4" required></textarea>
+                <textarea name="noiDungMoi" id="input_NoiDung_Sua" class="form-control rounded-3 border-0 p-3" rows="4" required></textarea>
             </div>
             <div class="modal-footer border-top-0 pt-0">
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>

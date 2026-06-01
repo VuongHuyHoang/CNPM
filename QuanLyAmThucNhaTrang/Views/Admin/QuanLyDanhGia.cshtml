@@ -88,15 +88,7 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-inline-flex gap-2">
-                                        @if (item.TrangThai == "HienThi")
-                                        {
-                                            <form action="@Url.Action("AnDanhGia", "Admin")" method="POST" onsubmit="return confirm('Bạn muốn ẨN bình luận này? (Sẽ bị trừ khỏi điểm TB của quán)');">
-                                                <input type="hidden" name="maDG" value="@item.MaDG" />
-                                                <button type="submit" class="btn btn-warning btn-sm rounded-pill text-dark fw-semibold" title="Ẩn khỏi khách hàng">
-                                                    <i class="bi bi-eye-slash-fill"></i> Ẩn
-                                                </button>
-                                            </form>
-                                        }
+                                       
                                         <form action="@Url.Action("XoaDanhGia", "Admin")" method="POST" onsubmit="return confirm('CẢNH BÁO: Xóa vĩnh viễn đánh giá này và các phản hồi liên quan?');">
                                             <input type="hidden" name="maDG" value="@item.MaDG" />
                                             <button type="submit" class="btn btn-danger btn-sm rounded-pill fw-semibold" title="Xóa vĩnh viễn khỏi CSDL">

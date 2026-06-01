@@ -48,14 +48,14 @@
                                     <div class="mb-1 d-flex align-items-center gap-2">
                                         @if (item.TrangThai.Trim() == "ChoDuyetSua")
                                         {
-                                            <span class="badge bg-info text-dark border border-info border-opacity-25 rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
+                                            <span class="badge bg-info border border-info border-opacity-25 rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
                                                 <i class="bi bi-pencil-square me-1"></i> Xin sửa thông tin
                                             </span>
                                             <span class="text-muted fst-italic" style="font-size: 0.75rem;">(Bản nháp từ ID gốc: #@item.MaDD_Goc)</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-primary bg-gradient text-white border rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
+                                            <span class="badge bg-primary bg-gradient border rounded-pill px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
                                                 <i class="bi bi-shop me-1"></i> Đăng ký mới
                                             </span>
                                         }
@@ -88,7 +88,7 @@
                                     <span class="d-block fw-semibold text-primary">@item.TAIKHOAN.HoTen</span>
                                     <small class="text-muted">SĐT: @item.SDT</small>
                                 </td>
-                                <td class="align-middle"><span class="badge bg-light text-dark border">@item.DANHMUC.TenDM</span></td>
+                                <td class="align-middle"><span class="badge border">@item.DANHMUC.TenDM</span></td>
 
                                 <td class="text-muted small align-middle">
                                     @(item.NgayDangKy.Year > 2000 ? item.NgayDangKy.ToString("dd/MM/yyyy HH:mm") : "Vừa cập nhật")
@@ -125,7 +125,7 @@
     }
     else
     {
-        <div class="text-center py-5 border rounded-4 bg-light bg-opacity-10">
+        <div class="text-center py-5 border rounded-4 bg-opacity-10">
             <i class="bi bi-clipboard2-check text-success display-3"></i>
             <h5 class="text-muted mt-3 fw-bold">Tất cả địa điểm đã được kiểm duyệt</h5>
             <p class="text-secondary small">Hiện tại không có yêu cầu đăng ký hoặc cập nhật quán ăn mới nào từ Đối tác.</p>
