@@ -84,18 +84,20 @@
                         <div class="row g-2 mb-4">
                             @foreach (var img in Model.HINHANH)
                             {
-                                <div class="col-4 col-md-3 col-lg-2">
-                                    <div class="position-relative rounded-3 overflow-hidden shadow-sm" style="height: 100px;">
-                                        <img src="@Url.Content("~" + img.DuongDan)" class="w-100 h-100 object-fit-cover" />
+                                var urlHinhAnhAnToan = img.DuongDan.StartsWith("http") ? img.DuongDan : Url.Content("~/" + img.DuongDan.TrimStart('/'));
 
-                                        <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-1" style="font-size: 0.6rem;">@img.LoaiHinhAnh</span>
+                        <div class="col-4 col-md-3 col-lg-2">
+                            <div class="position-relative rounded-3 overflow-hidden shadow-sm" style="height: 100px;">
+                                <img src="@urlHinhAnhAnToan" class="w-100 h-100 object-fit-cover" />
 
-                                        <div class="position-absolute top-0 end-0 m-1">
-                                            <input class="form-check-input bg-danger border-white shadow" type="checkbox" name="anhCanXoa" value="@img.MaHA" style="width: 1.2rem; height: 1.2rem; cursor: pointer;" title="Chọn để xóa">
-                                        </div>
-                                    </div>
+                                <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-1" style="font-size: 0.6rem;">@img.LoaiHinhAnh</span>
+
+                                <div class="position-absolute top-0 end-0 m-1">
+                                    <input class="form-check-input bg-danger border-white shadow" type="checkbox" name="anhCanXoa" value="@img.MaHA" style="width: 1.2rem; height: 1.2rem; cursor: pointer;" title="Chọn để xóa">
                                 </div>
-                            }
+                            </div>
+                        </div>
+                    }
                         </div>
                     }
 

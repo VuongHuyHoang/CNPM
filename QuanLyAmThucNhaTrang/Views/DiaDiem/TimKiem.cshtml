@@ -74,11 +74,19 @@
         </div>
 
         <div class="col-lg-9">
-            <div class=" p-3 rounded-4 border border-light-subtle d-flex justify-content-between align-items-center mb-4">
+            <div class="p-3 rounded-4 border border-light-subtle d-flex justify-content-between align-items-center mb-4">
                 <span class="text-secondary small fw-semibold d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-info-circle text-primary"></i> Tìm thấy <strong class="text-primary">@Model.Count</strong> địa điểm phù hợp
+                    <i class="bi bi-info-circle text-primary"></i> Tìm thấy <strong class="text-primary">@ViewBag.TotalItems</strong> địa điểm phù hợp
                 </span>
-                <span class="text-muted small">Sắp xếp: <strong>Đánh giá cao nhất</strong></span>
+
+                <div class="d-inline-flex align-items-center gap-2">
+                    <span class="text-muted small text-nowrap">Sắp xếp:</span>
+                    <select name="sapXep" form="filterForm" class="form-select form-select-sm border-0 fw-bold text-primary p-0 pe-4 bg-transparent style-select-sorting" style="box-shadow: none; cursor: pointer; width: auto;" onchange="document.getElementById('filterForm').submit();">
+                        <option value="danhGia" @(ViewBag.SapXepHienTai == "danhGia" ? "selected" : "")>Đánh giá cao nhất</option>
+                        <option value="moiNhat" @(ViewBag.SapXepHienTai == "moiNhat" ? "selected" : "")>Mới đăng ký</option>
+                        <option value="tenAZ" @(ViewBag.SapXepHienTai == "tenAZ" ? "selected" : "")>Tên quán (A - Z)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
@@ -86,10 +94,15 @@
                 {
                     foreach (var item in Model)
                     {
-                        var anhMatTien = item.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan;
-                        var urlAnh = string.IsNullOrEmpty(anhMatTien)
-                            ? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600"
-                            : Url.Content("~" + anhMatTien);
+                        // 1. Ưu tiên lấy ảnh Mặt tiền, nếu không có thì lấy ảnh đầu tiên bất kỳ trong CSDL của quán
+                        var anhGoc = item.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan
+                                  ?? item.HINHANH.FirstOrDefault()?.DuongDan;
+
+                        // 2. Chốt chặn cuối cùng: Nếu quán thực sự rỗng không có tấm ảnh nào, mới dùng ảnh Unsplash
+                        var anhMatTien = anhGoc ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600";
+
+                        // 3. Xử lý đường dẫn (giữ nguyên code cũ của bạn)
+                        var urlAnh = anhMatTien.StartsWith("http") ? anhMatTien : Url.Content("~/" + anhMatTien.TrimStart('/'));
 
                         <div class="col">
                             <div class="card h-100 border border-translucent shadow-sm overflow-hidden @(item.TrangThai == "TamNgung" ? "card-tamngung" : "")" style="border-radius: 18px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
@@ -138,6 +151,48 @@
                 }
             </div>
         </div>
+
+        @if (ViewBag.TotalPages > 1)
+        {
+            int currentPage = ViewBag.CurrentPage;
+            int totalPages = ViewBag.TotalPages;
+
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center gap-2">
+
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-item page-link border-0 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;"
+                           href="@Url.Action("TimKiem", new { page = currentPage - 1, tuKhoa = ViewBag.TuKhoaHienTai, maKV = ViewBag.MaKVHienTai, maDM = ViewBag.MaDMHienTai, sapXep = ViewBag.SapXepHienTai })"
+                           aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(currentPage == i ? "active" : "")">
+                            <a class="page-link border-0 rounded-circle shadow-sm d-flex align-items-center justify-content-center fw-bold"
+                               style="width: 40px; height: 40px; @(currentPage == i ? "" : "background: white; color: var(--bs-primary);")"
+                               href="@Url.Action("TimKiem", new { page = i, tuKhoa = ViewBag.TuKhoaHienTai, maKV = ViewBag.MaKVHienTai, maDM = ViewBag.MaDMHienTai, sapXep = ViewBag.SapXepHienTai })">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-item page-link border-0 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;"
+                           href="@Url.Action("TimKiem", new { page = currentPage + 1, tuKhoa = ViewBag.TuKhoaHienTai, maKV = ViewBag.MaKVHienTai, maDM = ViewBag.MaDMHienTai, sapXep = ViewBag.SapXepHienTai })"
+                           aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        }
+    </div>
 
     </div>
 </div>

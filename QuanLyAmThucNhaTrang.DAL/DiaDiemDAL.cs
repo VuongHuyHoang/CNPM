@@ -40,35 +40,34 @@ namespace QuanLyAmThucNhaTrang.DAL
         }
 
         // 1. Hàm tìm kiếm và lọc kết hợp (Động)
-        public List<DIADIEM> TimKiemVaLoc(string tuKhoa, int? maDM, int? maKV)
+        public List<DIADIEM> TimKiemVaLoc(string tuKhoa, int? maKV, int? maDM)
         {
             using (var db = new QuanLyAmThucNhaTrangEntities())
             {
-                // Khởi tạo câu truy vấn ban đầu: chỉ lấy những quán Đang hoạt động
-                var query = db.DIADIEM
-                              .Include(d => d.DANHMUC)
-                              .Include(d => d.HINHANH)
-                              .Where(d => d.TrangThai == "DangHoatDong");
+                // BỔ SUNG CHÍNH XÁC LỆNH .Include("HINHANH") VÀO CHUỖI NÀY
+                var query = db.DIADIEM.Include("DANHMUC")
+                                      .Include("KHUVUC")
+                                      .Include("HINHANH") // <--- THÊM DÒNG NÀY ĐỂ DIỆT TẬN GỐC LỖI DISPOSED
+                                      .Where(d => d.TrangThai == "DangHoatDong");
 
-                // Nếu có nhập từ khóa -> tìm theo Tên quán hoặc Địa chỉ
+                // Các đoạn logic kiểm tra if bên dưới bạn giữ nguyên toàn bộ:
                 if (!string.IsNullOrEmpty(tuKhoa))
                 {
-                    query = query.Where(d => d.TenDD.Contains(tuKhoa) || d.DiaChiChiTiet.Contains(tuKhoa));
+                    tuKhoa = tuKhoa.Trim().ToLower();
+                    query = query.Where(d => d.TenDD.ToLower().Contains(tuKhoa)
+                                          || d.DiaChiChiTiet.ToLower().Contains(tuKhoa));
                 }
 
-                // Nếu có chọn Danh mục -> lọc theo Danh mục
-                if (maDM.HasValue)
-                {
-                    query = query.Where(d => d.MaDM == maDM.Value);
-                }
-
-                // Nếu có chọn Khu vực -> lọc theo Khu vực
-                if (maKV.HasValue)
+                if (maKV.HasValue && maKV.Value > 0)
                 {
                     query = query.Where(d => d.MaKV == maKV.Value);
                 }
 
-                // Sắp xếp quán nhiều sao lên trước và xuất ra danh sách
+                if (maDM.HasValue && maDM.Value > 0)
+                {
+                    query = query.Where(d => d.MaDM == maDM.Value);
+                }
+
                 return query.OrderByDescending(d => d.DiemDanhGiaTB).ToList();
             }
         }

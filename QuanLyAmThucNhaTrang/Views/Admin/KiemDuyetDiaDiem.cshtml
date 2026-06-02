@@ -95,24 +95,25 @@
                                 </td>
 
                                 <td class="text-end pe-4 align-middle">
-                                    <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+                                    <div class="d-inline-flex flex-nowrap gap-2 justify-content-end align-items-center">
 
-                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill" target="_blank" title="Xem chi tiết nội dung">
+                                        <a href="@Url.Action("ChiTiet", "DiaDiem", new { id = item.MaDD })" class="btn btn-outline-secondary btn-sm rounded-pill text-nowrap" target="_blank" title="Xem chi tiết nội dung">
                                             <i class="bi bi-eye"></i> @(item.TrangThai.Trim() == "ChoDuyetSua" ? "Xem bản nháp" : "Xem trước")
                                         </a>
 
                                         <form action="@Url.Action("PheDuyet", "Admin")" method="POST" onsubmit="return confirm('Bạn xác nhận PHÊ DUYỆT yêu cầu này?');" class="m-0">
                                             <input type="hidden" name="maDD" value="@item.MaDD" />
-                                            <button type="submit" class="btn btn-success btn-sm rounded-pill fw-bold shadow-sm">
+                                            <button type="submit" class="btn btn-success btn-sm rounded-pill fw-bold shadow-sm text-nowrap">
                                                 <i class="bi bi-check-lg me-1"></i> Duyệt
                                             </button>
                                         </form>
 
-                                        <button type="button" class="btn btn-danger btn-sm rounded-pill fw-bold shadow-sm"
+                                        <button type="button" class="btn btn-danger btn-sm rounded-pill fw-bold shadow-sm text-nowrap"
                                                 onclick="moModalTuChoi(@item.MaDD, '@item.TenDD', '@(item.TrangThai.Trim() == "ChoDuyetSua" ? "Bản nháp cập nhật" : "Đăng ký mới")')"
                                                 data-bs-toggle="modal" data-bs-target="#modalTuChoi">
                                             <i class="bi bi-x-lg me-1"></i> Từ chối
                                         </button>
+
                                     </div>
                                 </td>
                             </tr>

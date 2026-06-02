@@ -26,9 +26,15 @@
     {
         foreach (var item in Model)
         {
-            // Logic lấy ảnh đại diện mặt tiền (nếu quán không có ảnh thì lấy ảnh mặc định)
-            var anhMatTien = item.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan
-                             ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600";
+            // 1. Ưu tiên lấy ảnh Mặt tiền, nếu không có thì lấy ảnh đầu tiên bất kỳ trong CSDL của quán
+            var anhGoc = item.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan
+                      ?? item.HINHANH.FirstOrDefault()?.DuongDan;
+
+            // 2. Chốt chặn cuối cùng: Nếu quán thực sự rỗng không có tấm ảnh nào, mới dùng ảnh Unsplash
+            var anhMatTien = anhGoc ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600";
+
+            // 3. Xử lý đường dẫn (giữ nguyên code cũ của bạn)
+            var urlAnh = anhMatTien.StartsWith("http") ? anhMatTien : Url.Content("~/" + anhMatTien.TrimStart('/'));
 
             <div class="col" data-aos="fade-up">
                 <div class="card h-100 border-0 shadow-sm overflow-hidden border border-translucent @(item.TrangThai == "TamNgung" ? "card-tamngung" : "")" style="border-radius: 20px; transition: all 0.3s ease;">
@@ -41,7 +47,7 @@
                             </div>
                         }
 
-                        <img src="@Url.Content("~" + anhMatTien)" class="w-100 h-100 object-fit-cover" alt="@item.TenDD" style="transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="@urlAnh" class="w-100 h-100 object-fit-cover" alt="@item.TenDD" style="transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                         <span class="position-absolute top-0 start-0 m-3 badge bg-white text-dark fw-bold border shadow-sm px-2.5 py-1.5" style="border-radius: 8px; font-size: 0.8rem;">
                             <i class="bi bi-tag-fill text-primary me-1"></i> @item.DANHMUC.TenDM
                         </span>

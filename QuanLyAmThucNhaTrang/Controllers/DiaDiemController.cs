@@ -29,11 +29,10 @@ namespace QuanLyAmThucNhaTrang.Controllers
         [HttpGet]
         public JsonResult LayDuLieuBanDo(string tuKhoa, int? maDM, int? maKV)
         {
-            // Tái sử dụng hàm tìm kiếm đã viết
-            var dsDiaDiem = _diaDiemBLL.TimKiemVaLoc(tuKhoa, maDM, maKV);
+            // 1. ĐÃ SỬA LẠI THỨ TỰ THAM SỐ: maKV đứng trước, maDM đứng sau cho khớp với BLL
+            var dsDiaDiem = _diaDiemBLL.TimKiemVaLoc(tuKhoa, maKV, maDM);
 
-            // Bọc dữ liệu lại, CHỈ LẤY những cột cần thiết để đưa lên bản đồ
-            // (Tránh lỗi Circular Reference - Vòng lặp vô tận của Entity Framework khi parse JSON)
+            // 2. Bọc dữ liệu lại, kết hợp check Null cho danh mục
             var result = dsDiaDiem.Select(d => new {
                 MaDD = d.MaDD,
                 TenDD = d.TenDD,
@@ -41,10 +40,11 @@ namespace QuanLyAmThucNhaTrang.Controllers
                 KinhDo = d.KinhDo,
                 DiaChi = d.DiaChiChiTiet,
                 Diem = d.DiemDanhGiaTB,
-                TenDM = d.DANHMUC.TenDM
+                // Dùng toán tử an toàn (C# 6.0+) để tránh sập web nếu DANHMUC bị null
+                TenDM = d.DANHMUC != null ? d.DANHMUC.TenDM : "Chưa phân loại"
             }).ToList();
 
-            // Trả về định dạng JSON
+            // 3. Trả về định dạng JSON
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -103,22 +103,51 @@ namespace QuanLyAmThucNhaTrang.Controllers
             return RedirectToAction("ChiTiet", "DiaDiem", new { id = maDD });
         }
 
-        // GET: DiaDiem/TimKiem
-        public ActionResult TimKiem(string tuKhoa, int? maDM, int? maKV)
+        public ActionResult TimKiem(string tuKhoa, int? maDM, int? maKV, string sapXep, int page = 1)
         {
-            // 1. Lấy dữ liệu nạp vào các bộ lọc trên giao diện
+            // 1. Lấy toàn bộ danh sách địa điểm đã lọc theo điều kiện
+            var danhSach = _diaDiemBLL.TimKiemVaLoc(tuKhoa, maKV, maDM);
+
+            // 2. THỰC HIỆN LOGIC SẮP XẾP ĐỘNG
+            if (string.IsNullOrEmpty(sapXep)) sapXep = "danhGia"; // Mặc định nếu chưa chọn gì
+
+            switch (sapXep)
+            {
+                case "moiNhat":
+                    danhSach = danhSach.OrderByDescending(d => d.NgayDangKy).ToList();
+                    break;
+                case "tenAZ":
+                    danhSach = danhSach.OrderBy(d => d.TenDD).ToList();
+                    break;
+                default: // "danhGia"
+                    danhSach = danhSach.OrderByDescending(d => d.DiemDanhGiaTB).ToList();
+                    break;
+            }
+
+            // 3. THIẾT LẬP CÁC BIẾN PHÂN TRANG
+            int pageSize = 6;
+            int totalItems = danhSach.Count; // Đây mới là TỔNG SỐ THỰC TẾ (ví dụ: 40 quán)
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+
+            var duLieuTrang = danhSach.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // 4. ĐẨY DỮ LIỆU QUA VIEW
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems; // <--- Đẩy tổng số lượng thực tế ra View
+
+            ViewBag.TuKhoaHienTai = tuKhoa;
+            ViewBag.MaKVHienTai = maKV;
+            ViewBag.MaDMHienTai = maDM;
+            ViewBag.SapXepHienTai = sapXep;  // <--- Giữ lại trạng thái sắp xếp để hiển thị trên Dropdown
+
             ViewBag.DanhMucList = _diaDiemBLL.LayTatCaDanhMuc();
             ViewBag.KhuVucList = _diaDiemBLL.LayTatCaKhuVuc();
 
-            // 2. Giữ lại trạng thái người dùng đã chọn để hiển thị lại trên Form sau khi tải lại trang
-            ViewBag.TuKhoaHienTai = tuKhoa;
-            ViewBag.MaDMHienTai = maDM;
-            ViewBag.MaKVHienTai = maKV;
-
-            // 3. Thực hiện tìm kiếm dữ liệu
-            var kếtQuả = _diaDiemBLL.TimKiemVaLoc(tuKhoa, maDM, maKV);
-
-            return View(kếtQuả);
+            return View(duLieuTrang);
         }
 
         // GET: DiaDiem/ChiTiet/5

@@ -19,10 +19,15 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             @foreach (var item in Model)
             {
-                var anhMatTien = item.DIADIEM.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan;
-                var urlAnh = string.IsNullOrEmpty(anhMatTien)
-                    ? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600"
-                    : Url.Content("~" + anhMatTien);
+                // 1. Ưu tiên lấy ảnh Mặt tiền, nếu không có thì lấy ảnh đầu tiên bất kỳ trong CSDL của quán
+                var anhGoc = item.DIADIEM.HINHANH.FirstOrDefault(h => h.LoaiHinhAnh == "MatTien")?.DuongDan
+                          ?? item.DIADIEM.HINHANH.FirstOrDefault()?.DuongDan;
+
+                // 2. Chốt chặn cuối cùng: Nếu quán thực sự rỗng không có tấm ảnh nào, mới dùng ảnh Unsplash
+                var anhMatTien = anhGoc ?? "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600";
+
+                // 3. Xử lý đường dẫn (giữ nguyên code cũ của bạn)
+                var urlAnh = anhMatTien.StartsWith("http") ? anhMatTien : Url.Content("~/" + anhMatTien.TrimStart('/'));
 
                 <div class="col" id="card_yeuthich_@item.DIADIEM.MaDD">
                     <div class="card h-100 border border-translucent shadow-sm overflow-hidden rounded-4">

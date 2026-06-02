@@ -129,7 +129,7 @@
                                             </a>
                                         }
 
-                                        @if (item.TrangThai.Trim() == "TuChoi")
+                                        @if (item.TrangThai.Trim() == "TuChoi"||item.TrangThai.Trim()=="ChoDuyet")
                                         {
                                             <form action="@Url.Action("XoaYeuCau", "DiaDiem")" method="POST" class="m-0 d-inline-block" onsubmit="return confirm('Bạn có muốn xóa bỏ vĩnh viễn đơn đăng ký bị từ chối này không?');">
                                                 <input type="hidden" name="id" value="@item.MaDD" />

@@ -4,6 +4,7 @@
     var khuVucList = ViewBag.KhuVucList as List<QuanLyAmThucNhaTrang.DAL.KHUVUC>;
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -16,8 +17,8 @@
 
                 <form id="desktopFilterForm">
                     <div class="mb-3">
-                        <label class="form-label text-dark small fw-bold text-secondary">Từ khóa</label>
-                        <input type="text" id="tuKhoa" class="form-control bg-light border-0" placeholder="Tìm tên quán, món ăn..." onkeyup="taiDuLieuBanDo()">
+                        <label class="form-label  small fw-bold text-secondary">Từ khóa</label>
+                        <input type="text" id="tuKhoa" class="form-control text-dark bg-light border-0" placeholder="Tìm tên quán, món ăn..." onkeyup="taiDuLieuBanDo()">
                     </div>
 
                     <div class="mb-3">
@@ -135,7 +136,7 @@
         }
 
         .map-custom-marker i {
-            font-size: 1.15rem;
+            font-size: 1.25rem; /* Phóng to icon MDI lên một chút cho rõ */
         }
     /* Khối đính kèm điểm sao nhỏ trên đầu ghim */
     .map-marker-badge {
@@ -171,28 +172,30 @@
         taiDuLieuBanDo();
     });
 
-    // HÀM NÂNG CẤP 3: Cấu hình Icon & Màu sắc tương ứng theo Danh mục của bạn
     function layCauHinhMarker(tenDM) {
         switch (tenDM) {
-            case 'Quán ăn':
-                return { iconClass: 'bi-shop text-warning', color: '#ffc107' };
-            case 'Nhà hàng':
-                return { iconClass: 'bi-utensils text-danger', color: '#dc3545' };
-            case 'Quán cà phê':
-                return { iconClass: 'bi-cup-hot-fill text-success', color: '#198754' };
-            case 'Quán bar / pub':
-                return { iconClass: 'bi-glass-cocktail text-info', color: '#0dcaf0' };
-            case 'Ẩm thực đường phố':
-                return { iconClass: 'bi-egg-fried text-primary', color: '#0d6efd' };
-            case 'Tiệm bánh':
-                return { iconClass: 'bi-cake2-fill text-secondary', color: '#6c757d' };
+            case 'Bún cá':
+                return { iconClass: 'mdi mdi-noodles text-info', color: '#0dcaf0' };
+            case 'Bánh canh':
+                return { iconClass: 'mdi mdi-pot-steam text-primary', color: '#0d6efd' };
+            case 'Nem nướng':
+                return { iconClass: 'mdi mdi-grill text-danger', color: '#dc3545' };
+            case 'Bánh căn':
+                return { iconClass: 'mdi mdi-pan-frying text-warning', color: '#ffc107' };
+            case 'Bánh xèo':
+                return { iconClass: 'mdi mdi-taco text-warning', color: '#fd7e14' };
+            case 'Mì quảng':
+                return { iconClass: 'mdi mdi-noodles text-success', color: '#198754' };
+            case 'Cơm gà':
+                return { iconClass: 'mdi mdi-food-drumstick text-warning', color: '#ffc107' };
+            case 'Cơm tấm':
+                return { iconClass: 'mdi mdi-rice text-success', color: '#20c997' };
             default:
-                return { iconClass: 'bi-geo-alt-fill text-primary', color: '#0d6efd' };
+                return { iconClass: 'mdi mdi-map-marker text-secondary', color: '#6c757d' };
         }
     }
 
     function taiDuLieuBanDo() {
-        // Tự động kiểm tra thiết bị để lấy giá trị từ form Desktop hoặc Mobile phù hợp
         var laMobile = window.innerWidth < 992;
         var tuKhoa = laMobile ? document.getElementById('tuKhoaMobile').value : document.getElementById('tuKhoa').value;
         var maDM = laMobile ? document.getElementById('maDMMobile').value : document.getElementById('maDM').value;
@@ -205,7 +208,6 @@
             .then(data => {
                 markerLayer.clearLayers();
 
-                // Cập nhật text số lượng lên cả 2 giao diện thông báo
                 var textThongBao = `<i class="bi bi-geo-alt-fill text-danger"></i> Tìm thấy ${data.length} địa điểm.`;
                 document.getElementById('desktopThongBao').innerHTML = textThongBao;
                 document.getElementById('mobileThongBao').innerHTML = textThongBao;
@@ -213,10 +215,8 @@
                 var toaDoCacDiem = [];
 
                 data.forEach(function (diadiem) {
-                    // Lấy cấu hình màu sắc và icon riêng cho quán ăn này
                     var cauHinh = layCauHinhMarker(diadiem.TenDM);
 
-                    // Khởi tạo cụm mã HTML thay thế hình giọt nước mặc định
                     var htmlMarker = `
                         <div class="map-custom-marker" style="border-color: ${cauHinh.color};">
                             <i class="${cauHinh.iconClass}"></i>
@@ -224,7 +224,6 @@
                         </div>
                     `;
 
-                    // Tạo DivIcon từ mã HTML trên
                     var customIcon = L.divIcon({
                         html: htmlMarker,
                         className: 'clear-leaflet-default-style',
@@ -250,7 +249,6 @@
                     toaDoCacDiem.push([diadiem.ViDo, diadiem.KinhDo]);
                 });
 
-                // Tự động thu phóng thông minh
                 if (toaDoCacDiem.length > 0) {
                     map.fitBounds(toaDoCacDiem, { padding: [50, 50], maxZoom: 16 });
                 } else {
