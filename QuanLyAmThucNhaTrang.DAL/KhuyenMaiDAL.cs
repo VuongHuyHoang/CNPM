@@ -39,35 +39,47 @@ namespace QuanLyAmThucNhaTrang.DAL
             {
                 try
                 {
-                    // 1. TÌM ĐỊA ĐIỂM MÀ CHỦ QUÁN ĐANG THAO TÁC
+                    // 1. BỌC LỖI THIẾU TRẠNG THÁI (Thường gây lỗi Validation nhất)
+                    if (string.IsNullOrEmpty(km.TrangThai))
+                    {
+                        km.TrangThai = "ConHieuLuc"; // Gán mặc định nếu ngoài View không truyền vào
+                    }
+
+                    // 2. TÌM ĐỊA ĐIỂM MÀ CHỦ QUÁN ĐANG THAO TÁC
                     var diaDiem = db.DIADIEM.FirstOrDefault(d => d.MaDD == km.MaDD);
 
                     if (diaDiem != null)
                     {
-                        // 2. CHỐT CHẶN CHUYỂN HƯỚNG DỮ LIỆU
-                        // Kiểm tra xem địa điểm này có phải là bản nháp không (có MaDD_Goc)
+                        // 3. CHỐT CHẶN CHUYỂN HƯỚNG DỮ LIỆU
                         if (diaDiem.MaDD_Goc.HasValue)
                         {
-                            // Nếu là nháp -> Gắn khuyến mãi này cho bản GỐC đang chiếu ngoài trang chủ
                             km.MaDD = diaDiem.MaDD_Goc.Value;
                         }
-                        else
-                        {
-                            // Nếu không có MaDD_Goc -> Đây chính là bản gốc (hoặc quán mới tinh chưa duyệt)
-                            // -> Giữ nguyên km.MaDD
-                        }
 
-                        // 3. Thêm vào CSDL và lưu lại
+                        // 4. Thêm vào CSDL và lưu lại
                         db.KHUYENMAI.Add(km);
                         db.SaveChanges();
                         return true;
                     }
                     return false;
                 }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    // ĐÂY LÀ ĐOẠN CODE "BẮT MẠCH" LỖI VALIDATION
+                    foreach (var validationErrors in ex.EntityValidationErrors)
+                    {
+                        foreach (var validationError in validationErrors.ValidationErrors)
+                        {
+                            // In thẳng tên cột bị lỗi và lý do ra cửa sổ Output của Visual Studio
+                            System.Diagnostics.Debug.WriteLine($"[LỖI VALIDATION] Cột [{validationError.PropertyName}] báo lỗi: {validationError.ErrorMessage}");
+                        }
+                    }
+                    return false;
+                }
                 catch (Exception ex)
                 {
-                    // Ghi log lỗi ra nếu cần
-                    System.Diagnostics.Debug.WriteLine("Lỗi thêm Khuyến mãi: " + ex.Message);
+                    // Bắt các lỗi hệ thống thông thường khác
+                    System.Diagnostics.Debug.WriteLine("Lỗi thêm Khuyến mãi (Hệ thống): " + ex.Message);
                     return false;
                 }
             }
